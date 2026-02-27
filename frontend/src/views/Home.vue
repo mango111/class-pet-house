@@ -22,6 +22,7 @@
         :growth-stages="classStore.currentClass?.growth_stages || defaultStages"
         @click="handleCardClick(s)"
         @select="$emit('select-student', s.id)"
+        @change-pet="handleChangePet(s)"
         @graduate="handleGraduate(s)"
         @show-badges="handleShowBadges(s)"
       />
@@ -167,6 +168,11 @@ async function onPetSelected() {
 function handleGraduate(student) {
   selectedStudent.value = student
   showGraduateModal.value = true
+}
+
+function handleChangePet(student) {
+  selectedStudent.value = student
+  showPetModal.value = true
 }
 
 async function onGraduated() {
