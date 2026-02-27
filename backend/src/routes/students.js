@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Student, Class, Group } = require('../models');
+const { Student, Class, Group, History, ExchangeRecord } = require('../models');
 const auth = require('../middleware/auth');
 const { requireActivated } = require('../middleware/auth');
 
@@ -93,6 +93,8 @@ router.delete('/:id', auth, requireActivated, async (req, res) => {
     const cls = await Class.findOne({ where: { id: student.class_id, user_id: req.userId } });
     if (!cls) return res.status(403).json({ error: '无权限' });
 
+    await History.destroy({ where: { student_id: student.id } });
+    await ExchangeRecord.destroy({ where: { student_id: student.id } });
     await student.destroy();
     res.json({ message: '删除成功' });
   } catch (err) {

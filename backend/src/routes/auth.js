@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { User, Class, ScoreRule, License } = require('../models');
+const { User, Class, ScoreRule, License, sequelize } = require('../models');
 const auth = require('../middleware/auth');
 
 const generateToken = (user) => {
@@ -81,29 +81,36 @@ router.post('/login', async (req, res) => {
 
 // 卡密激活
 router.post('/activate', auth, async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const { code } = req.body;
     if (!code) return res.status(400).json({ error: '请输入激活码' });
 
     // 防止重复激活
     if (req.user.is_activated) {
+      await t.rollback();
       return res.status(400).json({ error: '账号已激活，无需重复操作' });
     }
 
-    const license = await License.findOne({ where: { code, is_used: false } });
-    if (!license) return res.status(400).json({ error: '激活码无效或已被使用' });
-
-    await license.update({ is_used: true, used_by: req.userId, used_at: new Date() });
-    await req.user.update({ activation_code: code, is_activated: true });
-
-    // 创建默认班级和积分规则
-    const cls = await Class.create({ user_id: req.userId, name: '默认班级' });
-    for (let i = 0; i < DEFAULT_RULES.length; i++) {
-      await ScoreRule.create({ class_id: cls.id, ...DEFAULT_RULES[i], sort_order: i });
+    const license = await License.findOne({ where: { code, is_used: false }, transaction: t });
+    if (!license) {
+      await t.rollback();
+      return res.status(400).json({ error: '激活码无效或已被使用' });
     }
 
+    await license.update({ is_used: true, used_by: req.userId, used_at: new Date() }, { transaction: t });
+    await req.user.update({ activation_code: code, is_activated: true }, { transaction: t });
+
+    // 创建默认班级和积分规则
+    const cls = await Class.create({ user_id: req.userId, name: '默认班级' }, { transaction: t });
+    for (let i = 0; i < DEFAULT_RULES.length; i++) {
+      await ScoreRule.create({ class_id: cls.id, ...DEFAULT_RULES[i], sort_order: i }, { transaction: t });
+    }
+
+    await t.commit();
     res.json({ message: '激活成功', user: { id: req.user.id, username: req.user.username, is_activated: true } });
   } catch (err) {
+    await t.rollback();
     res.status(500).json({ error: '激活失败' });
   }
 });
@@ -163,7 +170,10 @@ router.post('/reset-password', async (req, res) => {
 // 更新用户设置
 router.put('/settings', auth, async (req, res) => {
   try {
-    await req.user.update({ settings: { ...req.user.settings, ...req.body } });
+    const allowedKeys = ['theme', 'sound', 'animation', 'language', 'fontSize'];
+    const filtered = {};
+    allowedKeys.forEach(k => { if (req.body[k] !== undefined) filtered[k] = req.body[k]; });
+    await req.user.update({ settings: { ...req.user.settings, ...filtered } });
     res.json({ message: '设置已保存', settings: req.user.settings });
   } catch (err) {
     res.status(500).json({ error: '保存失败' });

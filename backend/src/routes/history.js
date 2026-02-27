@@ -14,14 +14,18 @@ router.get('/class/:classId', auth, requireActivated, async (req, res) => {
     const limit = Math.min(Math.max(1, parseInt(rawLimit) || 50), 200);
     const offset = Math.max(0, parseInt(rawOffset) || 0);
     const where = { class_id: cls.id };
-    if (student_id) where.student_id = student_id;
+    if (student_id) {
+      const sid = parseInt(student_id);
+      if (isNaN(sid)) return res.status(400).json({ error: 'student_id 参数无效' });
+      where.student_id = sid;
+    }
 
     const history = await History.findAndCountAll({
       where,
       include: [{ model: Student, as: 'Student', attributes: ['id', 'name'] }],
       order: [['created_at', 'DESC']],
-      limit: parseInt(limit),
-      offset: parseInt(offset)
+      limit,
+      offset
     });
     res.json(history);
   } catch (err) {
@@ -57,6 +61,7 @@ router.post('/', auth, requireActivated, async (req, res) => {
     // 普通加分/扣分
     const rule = await ScoreRule.findByPk(rule_id);
     if (!rule) return res.status(404).json({ error: '规则不存在' });
+    if (rule.class_id !== cls.id) return res.status(403).json({ error: '规则不属于当前班级' });
 
     for (const sid of ids) {
       const student = await Student.findOne({ where: { id: sid, class_id } });
@@ -109,6 +114,7 @@ router.post('/revoke-batch', auth, requireActivated, async (req, res) => {
   try {
     const { record_ids } = req.body;
     if (!Array.isArray(record_ids)) return res.status(400).json({ error: '参数错误' });
+    if (record_ids.length > 100) return res.status(400).json({ error: '单次最多撤回100条' });
 
     let count = 0;
     for (const id of record_ids) {
@@ -136,6 +142,7 @@ router.post('/batch-delete', auth, requireActivated, async (req, res) => {
   try {
     const { record_ids } = req.body;
     if (!Array.isArray(record_ids)) return res.status(400).json({ error: '参数错误' });
+    if (record_ids.length > 200) return res.status(400).json({ error: '单次最多删除200条' });
 
     // 权限校验：只删除属于当前用户班级的记录
     const records = await History.findAll({ where: { id: record_ids } });

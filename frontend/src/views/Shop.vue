@@ -11,10 +11,16 @@
         <p class="text-xs text-gray-400">{{ item.description }}</p>
         <p class="text-sm text-accent font-bold mt-1">🏅 {{ item.price }}</p>
         <p v-if="item.stock >= 0" class="text-xs text-gray-400">库存: {{ item.stock }}</p>
-        <button @click="openExchange(item)"
-          class="mt-2 px-3 py-1 bg-accent text-white rounded-lg text-xs bg-accent-hover transition">
-          兑换
-        </button>
+        <div class="flex gap-1 justify-center mt-2">
+          <button @click="openExchange(item)"
+            class="px-3 py-1 bg-accent text-white rounded-lg text-xs bg-accent-hover transition">
+            兑换
+          </button>
+          <button @click="deleteItem(item)"
+            class="px-2 py-1 bg-gray-100 text-gray-400 rounded-lg text-xs hover:text-red-500 transition">
+            🗑️
+          </button>
+        </div>
       </div>
     </div>
 
@@ -66,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useClassStore } from '../stores/class'
 import api from '../utils/api'
 
@@ -76,6 +82,11 @@ const records = ref([])
 const newItem = reactive({ name: '', price: 1 })
 const showExchangeModal = ref(false)
 const exchangeTarget = ref(null)
+
+// ESC 关闭兑换弹窗
+function onEsc(e) { if (e.key === 'Escape') showExchangeModal.value = false }
+onMounted(() => window.addEventListener('keydown', onEsc))
+onUnmounted(() => window.removeEventListener('keydown', onEsc))
 
 onMounted(async () => {
   if (!classStore.currentClass) return
@@ -101,6 +112,14 @@ function openExchange(item) {
   showExchangeModal.value = true
 }
 
+async function deleteItem(item) {
+  if (!confirm(`确定删除「${item.name}」？`)) return
+  try {
+    await api.delete(`/shop/${item.id}`)
+    items.value = items.value.filter(i => i.id !== item.id)
+  } catch (err) { alert(err.error || '删除失败') }
+}
+
 async function confirmExchange(student) {
   try {
     await api.post('/shop/exchange', {
@@ -110,7 +129,13 @@ async function confirmExchange(student) {
     })
     showExchangeModal.value = false
     alert('兑换成功！')
-    records.value = await api.get(`/shop/exchange/${classStore.currentClass.id}`)
+    // 刷新商品列表（库存变化）、兑换记录、学生数据（徽章变化）
+    const cid = classStore.currentClass.id
+    await Promise.all([
+      api.get(`/shop/class/${cid}`).then(d => items.value = d),
+      api.get(`/shop/exchange/${cid}`).then(d => records.value = d),
+      classStore.fetchStudents()
+    ])
   } catch (err) { alert(err.error || '兑换失败') }
 }
 
