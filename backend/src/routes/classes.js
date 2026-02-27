@@ -45,6 +45,10 @@ router.put('/:id', auth, requireActivated, async (req, res) => {
 
     const { name, system_name, theme, growth_stages, sort_order } = req.body;
 
+    if (name !== undefined && (!name || typeof name !== 'string' || !name.trim())) {
+      return res.status(400).json({ error: '班级名称不能为空' });
+    }
+
     // growth_stages 格式校验
     if (growth_stages !== undefined) {
       if (!Array.isArray(growth_stages) || growth_stages.length < 2 || growth_stages.length > 20

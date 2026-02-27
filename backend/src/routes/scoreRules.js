@@ -52,8 +52,11 @@ router.put('/:id', auth, requireActivated, async (req, res) => {
     if (!cls) return res.status(403).json({ error: '无权限' });
 
     const { name, icon, value, sort_order } = req.body;
+    if (name !== undefined && (!name || typeof name !== 'string' || !name.trim())) {
+      return res.status(400).json({ error: '规则名称不能为空' });
+    }
     await rule.update({
-      ...(name !== undefined && { name }),
+      ...(name !== undefined && { name: name.trim() }),
       ...(icon !== undefined && { icon }),
       ...(value !== undefined && { value }),
       ...(sort_order !== undefined && { sort_order })

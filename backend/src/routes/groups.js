@@ -48,8 +48,11 @@ router.put('/:id', auth, requireActivated, async (req, res) => {
     if (!cls) return res.status(403).json({ error: '无权限' });
 
     const { name, sort_order } = req.body;
+    if (name !== undefined && (!name || typeof name !== 'string' || !name.trim())) {
+      return res.status(400).json({ error: '分组名称不能为空' });
+    }
     await group.update({
-      ...(name !== undefined && { name }),
+      ...(name !== undefined && { name: name.trim() }),
       ...(sort_order !== undefined && { sort_order })
     });
     res.json(group);

@@ -49,8 +49,11 @@ router.put('/:id', auth, requireActivated, async (req, res) => {
     if (!cls) return res.status(403).json({ error: '无权限' });
 
     const { name, description, icon, price, stock } = req.body;
+    if (name !== undefined && (!name || typeof name !== 'string' || !name.trim())) {
+      return res.status(400).json({ error: '商品名称不能为空' });
+    }
     await item.update({
-      ...(name !== undefined && { name }),
+      ...(name !== undefined && { name: name.trim() }),
       ...(description !== undefined && { description }),
       ...(icon !== undefined && { icon }),
       ...(price !== undefined && { price }),
