@@ -2,7 +2,7 @@
   <div
     class="relative bg-white rounded-2xl shadow-sm border-2 p-3 cursor-pointer transition-all active:scale-95 hover:shadow-md"
     :class="{
-      'border-pink-300 bg-pink-50': selected,
+      'border-accent bg-theme-light': selected,
       'border-transparent': !selected
     }"
     @click="$emit(batchMode ? 'select' : 'click')"
@@ -25,7 +25,7 @@
     <!-- 进度条 -->
     <div v-if="student.pet_type" class="mt-2">
       <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div class="h-full bg-pink-400 rounded-full transition-all duration-500"
+        <div class="h-full bg-accent rounded-full transition-all duration-500"
           :style="{ width: progressPercent + '%' }"></div>
       </div>
       <p class="text-center text-xs text-gray-400 mt-1">{{ student.food_count }} / {{ maxFood }}</p>

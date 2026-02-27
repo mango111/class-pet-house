@@ -1,11 +1,32 @@
 @import "tailwindcss";
 
+/* 主题 CSS 变量 */
+:root {
+  --accent: #f472b6;
+  --accent-hover: #ec4899;
+  --theme-bg: #fdf2f8;
+  --theme-light: #fce7f3;
+  --theme-text: #9d174d;
+  --theme-ring: #f9a8d4;
+}
+
 /* 全局样式 */
 body {
   font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
   -webkit-user-select: none;
   user-select: none;
+  background-color: var(--theme-bg);
 }
+
+/* 主题色工具类 */
+.bg-accent { background-color: var(--accent); }
+.bg-accent-hover:hover { background-color: var(--accent-hover); }
+.text-accent { color: var(--accent); }
+.text-theme { color: var(--theme-text); }
+.bg-theme { background-color: var(--theme-bg); }
+.bg-theme-light { background-color: var(--theme-light); }
+.border-accent { border-color: var(--accent); }
+.ring-accent { --tw-ring-color: var(--theme-ring); }
 
 /* 滚动条 */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
