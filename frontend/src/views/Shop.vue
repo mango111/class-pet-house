@@ -9,10 +9,10 @@
         <span class="text-3xl">{{ item.icon }}</span>
         <p class="text-sm font-medium text-gray-700 mt-2">{{ item.name }}</p>
         <p class="text-xs text-gray-400">{{ item.description }}</p>
-        <p class="text-sm text-pink-500 font-bold mt-1">🏅 {{ item.price }}</p>
+        <p class="text-sm text-accent font-bold mt-1">🏅 {{ item.price }}</p>
         <p v-if="item.stock >= 0" class="text-xs text-gray-400">库存: {{ item.stock }}</p>
         <button @click="openExchange(item)"
-          class="mt-2 px-3 py-1 bg-pink-400 text-white rounded-lg text-xs hover:bg-pink-500 transition">
+          class="mt-2 px-3 py-1 bg-accent text-white rounded-lg text-xs bg-accent-hover transition">
           兑换
         </button>
       </div>
@@ -29,7 +29,7 @@
         <div class="max-h-60 overflow-y-auto space-y-1">
           <button v-for="s in classStore.students" :key="s.id"
             @click="confirmExchange(s)"
-            class="w-full text-left px-3 py-2 rounded-lg hover:bg-pink-50 text-sm transition flex justify-between">
+            class="w-full text-left px-3 py-2 rounded-lg hover:bg-theme-light text-sm transition flex justify-between">
             <span>{{ s.name }}</span>
             <span class="text-xs text-gray-400">🏅{{ (s.badges || []).length }}</span>
           </button>
@@ -48,7 +48,7 @@
         <input v-model.number="newItem.price" type="number" placeholder="价格" min="1"
           class="w-20 px-3 py-2 rounded-lg border text-sm outline-none" />
         <button @click="addItem"
-          class="px-4 py-2 bg-pink-400 text-white rounded-lg text-sm">➕ 添加</button>
+          class="px-4 py-2 bg-accent text-white rounded-lg text-sm">➕ 添加</button>
       </div>
     </div>
 

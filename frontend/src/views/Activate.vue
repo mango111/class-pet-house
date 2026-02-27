@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-amber-50 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-theme flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
       <h1 class="text-2xl font-bold text-center text-gray-700 mb-2">🔑 激活账号</h1>
       <p class="text-center text-gray-400 mb-6">请输入您的激活码</p>
@@ -9,9 +9,9 @@
 
       <div class="space-y-4">
         <input v-model="code" type="text" placeholder="请输入激活码" @keyup.enter="handleActivate"
-          class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-300 focus:ring-2 focus:ring-pink-100 outline-none transition" />
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-accent ring-accent outline-none transition" />
         <button @click="handleActivate" :disabled="loading"
-          class="w-full py-3 bg-pink-400 hover:bg-pink-500 text-white rounded-xl font-medium transition active:scale-95 disabled:opacity-50">
+          class="w-full py-3 bg-accent bg-accent-hover text-white rounded-xl font-medium transition active:scale-95 disabled:opacity-50">
           {{ loading ? '激活中...' : '立即激活' }}
         </button>
       </div>

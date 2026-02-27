@@ -9,7 +9,7 @@
       <div class="grid grid-cols-2 gap-2">
         <button v-for="rule in rules" :key="rule.id"
           @click="applyRule(rule)"
-          class="flex items-center gap-2 p-3 rounded-xl border border-gray-100 hover:border-pink-300 hover:bg-pink-50 transition active:scale-95">
+          class="flex items-center gap-2 p-3 rounded-xl border border-gray-100 hover:border-accent hover:bg-theme-light transition active:scale-95">
           <span class="text-lg">{{ rule.icon }}</span>
           <div class="text-left">
             <p class="text-sm text-gray-700">{{ rule.name }}</p>

@@ -39,7 +39,7 @@
 
     <!-- 更换宠物按钮 -->
     <button v-if="student.pet_type && student.food_count === 0"
-      class="absolute top-2 left-2 text-xs text-gray-400 hover:text-pink-400" title="更换宠物"
+      class="absolute top-2 left-2 text-xs text-gray-400 hover:text-accent" title="更换宠物"
       @click.stop="$emit('change-pet')">🔄</button>
 
     <!-- 满级毕业按钮 -->

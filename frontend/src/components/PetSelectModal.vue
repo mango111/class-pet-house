@@ -7,7 +7,7 @@
       <div class="grid grid-cols-4 sm:grid-cols-5 gap-3">
         <button v-for="pet in pets" :key="pet.id"
           @click="selectPet(pet)"
-          class="flex flex-col items-center p-2 rounded-xl border border-gray-100 hover:border-pink-300 hover:bg-pink-50 transition active:scale-95">
+          class="flex flex-col items-center p-2 rounded-xl border border-gray-100 hover:border-accent hover:bg-theme-light transition active:scale-95">
           <img :src="`/动物图片/${pet.folder}/1.webp`" :alt="pet.name" class="w-14 h-14 object-contain" />
           <span class="text-xs text-gray-600 mt-1">{{ pet.name }}</span>
         </button>

@@ -7,11 +7,11 @@
       <div class="space-y-2 max-h-60 overflow-y-auto mb-4">
         <div v-for="cls in classStore.classes" :key="cls.id"
           class="flex items-center justify-between p-3 rounded-xl border transition cursor-pointer"
-          :class="cls.id === classStore.currentClass?.id ? 'border-pink-300 bg-pink-50' : 'border-gray-100 hover:bg-gray-50'"
+          :class="cls.id === classStore.currentClass?.id ? 'border-accent bg-theme-light' : 'border-gray-100 hover:bg-gray-50'"
           @click="switchTo(cls)">
           <span class="text-gray-700">{{ cls.name }}</span>
           <div class="flex gap-1">
-            <span v-if="cls.id === classStore.currentClass?.id" class="text-xs text-pink-400">当前</span>
+            <span v-if="cls.id === classStore.currentClass?.id" class="text-xs text-accent">当前</span>
             <button @click.stop="editClass(cls)" class="text-gray-400 hover:text-gray-600 text-sm">✏️</button>
             <button @click.stop="deleteClass(cls)" class="text-gray-400 hover:text-red-500 text-sm">🗑️</button>
           </div>
@@ -21,8 +21,8 @@
       <!-- 创建新班级 -->
       <div class="flex gap-2">
         <input v-model="newName" type="text" placeholder="新班级名称"
-          class="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-pink-300" />
-        <button @click="createClass" class="px-4 py-2 bg-pink-400 text-white rounded-lg text-sm hover:bg-pink-500">
+          class="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-accent" />
+        <button @click="createClass" class="px-4 py-2 bg-accent text-white rounded-lg text-sm hover:bg-accent-hover">
           ➕ 创建
         </button>
       </div>
@@ -38,6 +38,9 @@ import api from '../utils/api'
 const emit = defineEmits(['close'])
 const classStore = useClassStore()
 const newName = ref('')
+
+import { useEscClose } from '../composables/useEscClose'
+useEscClose(emit)
 
 async function switchTo(cls) {
   await classStore.switchClass(cls)

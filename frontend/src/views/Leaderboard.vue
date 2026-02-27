@@ -5,10 +5,10 @@
     <!-- 排行维度切换 -->
     <div class="flex gap-2 mb-4">
       <button @click="rankBy = 'food'"
-        :class="rankBy === 'food' ? 'bg-pink-400 text-white' : 'bg-white text-gray-600'"
+        :class="rankBy === 'food' ? 'bg-accent text-white' : 'bg-white text-gray-600'"
         class="px-4 py-2 rounded-lg text-sm transition">🍖 食物排行</button>
       <button @click="rankBy = 'badges'"
-        :class="rankBy === 'badges' ? 'bg-pink-400 text-white' : 'bg-white text-gray-600'"
+        :class="rankBy === 'badges' ? 'bg-accent text-white' : 'bg-white text-gray-600'"
         class="px-4 py-2 rounded-lg text-sm transition">🏅 徽章排行</button>
     </div>
 
@@ -26,7 +26,7 @@
           <p class="text-sm font-medium text-gray-700">{{ s.name }}</p>
           <p class="text-xs text-gray-400">{{ s.pet_name || '' }}</p>
         </div>
-        <span class="text-sm font-bold text-pink-500">
+        <span class="text-sm font-bold text-accent">
           {{ rankBy === 'food' ? s.food_count : (s.badges || []).length }}
         </span>
       </div>
