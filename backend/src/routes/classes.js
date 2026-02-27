@@ -97,4 +97,41 @@ router.delete('/:id', auth, requireActivated, async (req, res) => {
   }
 });
 
+// 复制班级配置（积分规则+商品+成长阶段）
+router.post('/copy-config', auth, requireActivated, async (req, res) => {
+  try {
+    const { from_class_id, to_class_id } = req.body;
+    const fromCls = await Class.findOne({ where: { id: from_class_id, user_id: req.userId } });
+    const toCls = await Class.findOne({ where: { id: to_class_id, user_id: req.userId } });
+    if (!fromCls || !toCls) return res.status(404).json({ error: '班级不存在' });
+    if (fromCls.id === toCls.id) return res.status(400).json({ error: '不能复制到自身' });
+
+    // 复制成长阶段
+    await toCls.update({ growth_stages: fromCls.growth_stages });
+
+    // 复制积分规则
+    const rules = await ScoreRule.findAll({ where: { class_id: from_class_id } });
+    for (const r of rules) {
+      await ScoreRule.create({
+        class_id: to_class_id, name: r.name,
+        icon: r.icon, value: r.value, sort_order: r.sort_order
+      });
+    }
+
+    // 复制商品
+    const items = await ShopItem.findAll({ where: { class_id: from_class_id } });
+    for (const item of items) {
+      await ShopItem.create({
+        class_id: to_class_id, name: item.name,
+        description: item.description, icon: item.icon,
+        price: item.price, stock: item.stock
+      });
+    }
+
+    res.json({ message: '配置复制成功' });
+  } catch (err) {
+    res.status(500).json({ error: '复制失败' });
+  }
+});
+
 module.exports = router;

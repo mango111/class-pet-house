@@ -108,4 +108,44 @@ router.delete('/:id', auth, requireActivated, async (req, res) => {
   }
 });
 
+// 全班进度重置
+router.post('/reset-all', auth, requireActivated, async (req, res) => {
+  try {
+    const { class_id } = req.body;
+    const cls = await Class.findOne({ where: { id: class_id, user_id: req.userId } });
+    if (!cls) return res.status(404).json({ error: '班级不存在' });
+
+    await Student.update(
+      { food_count: 0, pet_type: null, pet_name: null },
+      { where: { class_id } }
+    );
+    res.json({ message: '全班进度已重置' });
+  } catch (err) {
+    res.status(500).json({ error: '重置失败' });
+  }
+});
+
+// 一键随机分配宠物
+router.post('/random-pets', auth, requireActivated, async (req, res) => {
+  try {
+    const { class_id, pets } = req.body;
+    const cls = await Class.findOne({ where: { id: class_id, user_id: req.userId } });
+    if (!cls) return res.status(404).json({ error: '班级不存在' });
+    if (!Array.isArray(pets) || !pets.length) return res.status(400).json({ error: '宠物列表不能为空' });
+
+    const students = await Student.findAll({ where: { class_id, pet_type: null } });
+    if (!students.length) return res.status(400).json({ error: '没有需要分配宠物的学生' });
+
+    let count = 0;
+    for (const s of students) {
+      const pet = pets[Math.floor(Math.random() * pets.length)];
+      await s.update({ pet_type: pet.id, pet_name: pet.name });
+      count++;
+    }
+    res.json({ message: `已为${count}名学生随机分配宠物` });
+  } catch (err) {
+    res.status(500).json({ error: '分配失败' });
+  }
+});
+
 module.exports = router;

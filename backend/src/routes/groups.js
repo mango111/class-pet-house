@@ -79,4 +79,33 @@ router.delete('/:id', auth, requireActivated, async (req, res) => {
   }
 });
 
+// 随机分组
+router.post('/random-assign', auth, requireActivated, async (req, res) => {
+  try {
+    const { class_id } = req.body;
+    const cls = await Class.findOne({ where: { id: class_id, user_id: req.userId } });
+    if (!cls) return res.status(404).json({ error: '班级不存在' });
+
+    const groups = await Group.findAll({ where: { class_id } });
+    if (!groups.length) return res.status(400).json({ error: '请先创建分组' });
+
+    const students = await Student.findAll({ where: { class_id } });
+    // Fisher-Yates 洗牌
+    const shuffled = [...students];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    for (let i = 0; i < shuffled.length; i++) {
+      const group = groups[i % groups.length];
+      await shuffled[i].update({ group_id: group.id });
+    }
+
+    res.json({ message: '随机分组完成' });
+  } catch (err) {
+    res.status(500).json({ error: '随机分组失败' });
+  }
+});
+
 module.exports = router;

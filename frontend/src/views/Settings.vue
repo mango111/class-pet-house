@@ -81,6 +81,33 @@
       </div>
     </div>
 
+    <!-- 成长阶段配置 -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm">
+      <h3 class="font-bold text-gray-700 mb-3">📊 成长阶段配置</h3>
+      <p class="text-xs text-gray-400 mb-2">设置宠物每个阶段所需的食物数量（逗号分隔）</p>
+      <input v-model="growthStagesText" type="text" placeholder="0,5,10,20,30,45,60,75,90,100"
+        class="w-full px-3 py-2 rounded-lg border border-gray-200 outline-none text-sm focus:border-accent" />
+    </div>
+
+    <!-- 班级工具 -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm space-y-3">
+      <h3 class="font-bold text-gray-700 mb-3">🛠️ 班级工具</h3>
+      <button @click="randomAssignPets"
+        class="w-full py-2 bg-theme-light text-theme rounded-lg text-sm hover:opacity-80">🐾 一键随机分配宠物</button>
+      <button @click="randomAssignGroups"
+        class="w-full py-2 bg-theme-light text-theme rounded-lg text-sm hover:opacity-80">🎲 随机分组</button>
+      <button @click="resetAllProgress"
+        class="w-full py-2 bg-red-50 text-red-500 rounded-lg text-sm hover:bg-red-100">🔄 全班进度重置</button>
+      <div v-if="classStore.classes.length > 1" class="flex gap-2 items-center">
+        <select v-model="copyFromClassId" class="flex-1 px-3 py-2 rounded-lg border text-sm outline-none">
+          <option value="">选择源班级</option>
+          <option v-for="c in classStore.classes.filter(c => c.id !== classStore.currentClass?.id)" :key="c.id" :value="c.id">{{ c.name }}</option>
+        </select>
+        <button @click="copyConfig" :disabled="!copyFromClassId"
+          class="px-4 py-2 bg-accent text-white rounded-lg text-sm disabled:opacity-50">📋 复制配置</button>
+      </div>
+    </div>
+
     <!-- 账号管理 -->
     <div class="bg-white rounded-2xl p-5 shadow-sm space-y-3">
       <h3 class="font-bold text-gray-700 mb-3">👤 账号管理</h3>
@@ -113,6 +140,7 @@ import { useAuthStore } from '../stores/auth'
 import api from '../utils/api'
 import BatchAddModal from '../components/BatchAddModal.vue'
 import { useTheme } from '../composables/useTheme'
+import { PETS } from '../utils/pets'
 
 const router = useRouter()
 const classStore = useClassStore()
@@ -126,6 +154,8 @@ const showBatchAdd = ref(false)
 const rules = ref([])
 const currentTheme = ref('pink')
 const newRule = ref({ name: '', icon: '⭐', value: 1 })
+const growthStagesText = ref('')
+const copyFromClassId = ref('')
 
 const themes = [
   { id: 'pink', color: '#f472b6' },
@@ -143,6 +173,7 @@ onMounted(async () => {
     systemName.value = classStore.currentClass.system_name || ''
     className.value = classStore.currentClass.name || ''
     currentTheme.value = classStore.currentClass.theme || 'pink'
+    growthStagesText.value = (classStore.currentClass.growth_stages || [0,5,10,20,30,45,60,75,90,100]).join(',')
     const data = await api.get(`/score-rules/class/${classStore.currentClass.id}`)
     rules.value = data
   }
@@ -217,13 +248,69 @@ function handleLogout() {
 
 async function saveSettings() {
   try {
-    await api.put(`/classes/${classStore.currentClass.id}`, {
+    const updateData = {
       system_name: systemName.value,
       name: className.value,
       theme: currentTheme.value
-    })
+    }
+    // 解析成长阶段
+    if (growthStagesText.value) {
+      const stages = growthStagesText.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+      if (stages.length >= 2) updateData.growth_stages = stages
+    }
+    await api.put(`/classes/${classStore.currentClass.id}`, updateData)
     await classStore.fetchClasses()
     alert('设置已保存')
   } catch (err) { alert(err.error || '保存失败') }
+}
+
+async function randomAssignPets() {
+  if (!confirm('将为所有未分配宠物的学生随机分配，确定？')) return
+  try {
+    await api.post('/students/random-pets', {
+      class_id: classStore.currentClass.id,
+      pets: PETS
+    })
+    await classStore.fetchStudents()
+    alert('随机分配完成')
+  } catch (err) { alert(err.error || '分配失败') }
+}
+
+async function randomAssignGroups() {
+  if (!confirm('将打乱所有学生并随机分配到现有分组，确定？')) return
+  try {
+    await api.post('/groups/random-assign', {
+      class_id: classStore.currentClass.id
+    })
+    await classStore.fetchGroups()
+    await classStore.fetchStudents()
+    alert('随机分组完成')
+  } catch (err) { alert(err.error || '分组失败') }
+}
+
+async function resetAllProgress() {
+  if (!confirm('⚠️ 将重置全班所有学生的食物和宠物，此操作不可撤回！确定？')) return
+  try {
+    await api.post('/students/reset-all', {
+      class_id: classStore.currentClass.id
+    })
+    await classStore.fetchStudents()
+    alert('全班进度已重置')
+  } catch (err) { alert(err.error || '重置失败') }
+}
+
+async function copyConfig() {
+  if (!copyFromClassId.value) return
+  if (!confirm('将从源班级复制积分规则、商品和成长阶段到当前班级，确定？')) return
+  try {
+    await api.post('/classes/copy-config', {
+      from_class_id: copyFromClassId.value,
+      to_class_id: classStore.currentClass.id
+    })
+    await classStore.fetchClasses()
+    const data = await api.get(`/score-rules/class/${classStore.currentClass.id}`)
+    rules.value = data
+    alert('配置复制成功')
+  } catch (err) { alert(err.error || '复制失败') }
 }
 </script>
