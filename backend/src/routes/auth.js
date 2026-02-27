@@ -85,6 +85,11 @@ router.post('/activate', auth, async (req, res) => {
     const { code } = req.body;
     if (!code) return res.status(400).json({ error: '请输入激活码' });
 
+    // 防止重复激活
+    if (req.user.is_activated) {
+      return res.status(400).json({ error: '账号已激活，无需重复操作' });
+    }
+
     const license = await License.findOne({ where: { code, is_used: false } });
     if (!license) return res.status(400).json({ error: '激活码无效或已被使用' });
 

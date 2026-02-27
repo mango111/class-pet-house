@@ -2,13 +2,26 @@ const router = require('express').Router();
 const { License, User } = require('../models');
 const crypto = require('crypto');
 
-// 简单的管理员验证
+// 管理员验证（使用 Authorization header）
 const adminAuth = (req, res, next) => {
-  const { username, password } = req.headers;
-  if (username === process.env.ADMIN_USERNAME &&
-      password === process.env.ADMIN_PASSWORD) {
-    return next();
+  const adminUser = process.env.ADMIN_USERNAME;
+  const adminPass = process.env.ADMIN_PASSWORD;
+  if (!adminUser || !adminPass) {
+    return res.status(503).json({ error: '管理后台未配置' });
   }
+
+  // 支持 Basic Auth
+  const authHeader = req.headers.authorization || '';
+  if (authHeader.startsWith('Basic ')) {
+    const decoded = Buffer.from(authHeader.slice(6), 'base64').toString();
+    const [u, p] = decoded.split(':');
+    if (u === adminUser && p === adminPass) return next();
+  }
+
+  // 兼容自定义 header
+  const { username, password } = req.headers;
+  if (username === adminUser && password === adminPass) return next();
+
   res.status(401).json({ error: '管理员认证失败' });
 };
 

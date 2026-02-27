@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { History, Student, Class, ScoreRule } = require('../models');
 const auth = require('../middleware/auth');
+const { broadcast } = require('./sync');
 
 // 获取班级操作历史
 router.get('/class/:classId', auth, async (req, res) => {
@@ -52,6 +53,9 @@ router.post('/', auth, async (req, res) => {
     }
 
     res.json({ results });
+
+    // SSE 广播通知前端刷新
+    broadcast(req.userId, { type: 'score_update', class_id, results });
   } catch (err) {
     res.status(500).json({ error: '操作失败' });
   }
@@ -71,7 +75,7 @@ router.post('/revoke', auth, async (req, res) => {
 
     const student = await Student.findByPk(record.student_id);
     if (student) {
-      await student.update({ food_count: student.food_count - record.value });
+      await student.update({ food_count: Math.max(0, student.food_count - record.value) });
     }
 
     await record.update({ is_revoked: true });
