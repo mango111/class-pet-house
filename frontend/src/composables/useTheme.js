@@ -1,4 +1,4 @@
-import { ref, watch, computed } from 'vue'
+import { ref, computed } from 'vue'
 
 const currentThemeId = ref(localStorage.getItem('theme') || 'pink')
 
