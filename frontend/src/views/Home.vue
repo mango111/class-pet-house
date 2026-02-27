@@ -156,12 +156,12 @@ async function revokeLastAction(student) {
 
 async function onScored() {
   showScoreModal.value = false
-  await classStore.fetchStudents()
+  try { await classStore.fetchStudents() } catch {}
 }
 
 async function onPetSelected() {
   showPetModal.value = false
-  await classStore.fetchStudents()
+  try { await classStore.fetchStudents() } catch {}
 }
 
 function handleGraduate(student) {
@@ -171,7 +171,7 @@ function handleGraduate(student) {
 
 async function onGraduated() {
   showGraduateModal.value = false
-  await classStore.fetchStudents()
+  try { await classStore.fetchStudents() } catch {}
 }
 
 function handleShowBadges(student) {

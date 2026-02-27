@@ -90,21 +90,25 @@ onUnmounted(() => window.removeEventListener('keydown', onEsc))
 
 onMounted(async () => {
   if (!classStore.currentClass) return
-  const cid = classStore.currentClass.id
-  items.value = await api.get(`/shop/class/${cid}`)
-  records.value = await api.get(`/shop/exchange/${cid}`)
+  try {
+    const cid = classStore.currentClass.id
+    items.value = await api.get(`/shop/class/${cid}`)
+    records.value = await api.get(`/shop/exchange/${cid}`)
+  } catch {}
 })
 
 async function addItem() {
   if (!newItem.name) return
-  const item = await api.post('/shop', {
-    class_id: classStore.currentClass.id,
-    name: newItem.name,
-    price: newItem.price
-  })
-  items.value.push(item)
-  newItem.name = ''
-  newItem.price = 1
+  try {
+    const item = await api.post('/shop', {
+      class_id: classStore.currentClass.id,
+      name: newItem.name,
+      price: newItem.price
+    })
+    items.value.push(item)
+    newItem.name = ''
+    newItem.price = 1
+  } catch (err) { alert(err.error || '添加失败') }
 }
 
 function openExchange(item) {

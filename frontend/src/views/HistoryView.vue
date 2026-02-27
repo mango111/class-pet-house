@@ -45,20 +45,24 @@ onMounted(() => loadHistory())
 
 async function loadHistory() {
   if (!classStore.currentClass) return
-  const data = await api.get(
-    `/history/class/${classStore.currentClass.id}?limit=${limit}&offset=${offset.value}`
-  )
-  history.value = data.rows || []
-  hasMore.value = data.count > offset.value + limit
+  try {
+    const data = await api.get(
+      `/history/class/${classStore.currentClass.id}?limit=${limit}&offset=${offset.value}`
+    )
+    history.value = data.rows || []
+    hasMore.value = data.count > offset.value + limit
+  } catch {}
 }
 
 async function loadMore() {
   offset.value += limit
-  const data = await api.get(
-    `/history/class/${classStore.currentClass.id}?limit=${limit}&offset=${offset.value}`
-  )
-  history.value.push(...(data.rows || []))
-  hasMore.value = data.count > offset.value + limit
+  try {
+    const data = await api.get(
+      `/history/class/${classStore.currentClass.id}?limit=${limit}&offset=${offset.value}`
+    )
+    history.value.push(...(data.rows || []))
+    hasMore.value = data.count > offset.value + limit
+  } catch {}
 }
 
 function formatTime(t) {

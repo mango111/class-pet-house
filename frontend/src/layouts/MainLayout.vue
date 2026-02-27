@@ -155,17 +155,19 @@ function exitBatch() {
 
 async function onBatchScored() {
   showBatchScoreModal.value = false
-  await classStore.fetchStudents()
+  try { await classStore.fetchStudents() } catch {}
   exitBatch()
 }
 
 onMounted(async () => {
-  await classStore.fetchClasses()
-  if (classStore.currentClass) {
-    await Promise.all([
-      classStore.fetchStudents(),
-      classStore.fetchGroups()
-    ])
-  }
+  try {
+    await classStore.fetchClasses()
+    if (classStore.currentClass) {
+      await Promise.all([
+        classStore.fetchStudents(),
+        classStore.fetchGroups()
+      ])
+    }
+  } catch {}
 })
 </script>

@@ -163,20 +163,26 @@ async function addStudent() {
 async function editStudent(s) {
   const name = prompt('修改学生姓名', s.name)
   if (!name || name === s.name) return
-  await api.put(`/students/${s.id}`, { name })
-  await classStore.fetchStudents()
+  try {
+    await api.put(`/students/${s.id}`, { name })
+    await classStore.fetchStudents()
+  } catch (err) { alert(err.error || '修改失败') }
 }
 
 async function deleteStudent(s) {
   if (!confirm(`确定删除"${s.name}"？`)) return
-  await api.delete(`/students/${s.id}`)
-  await classStore.fetchStudents()
+  try {
+    await api.delete(`/students/${s.id}`)
+    await classStore.fetchStudents()
+  } catch (err) { alert(err.error || '删除失败') }
 }
 
 async function deleteRule(r) {
   if (!confirm(`确定删除"${r.name}"？`)) return
-  await api.delete(`/score-rules/${r.id}`)
-  rules.value = rules.value.filter(x => x.id !== r.id)
+  try {
+    await api.delete(`/score-rules/${r.id}`)
+    rules.value = rules.value.filter(x => x.id !== r.id)
+  } catch (err) { alert(err.error || '删除失败') }
 }
 
 async function addRule() {

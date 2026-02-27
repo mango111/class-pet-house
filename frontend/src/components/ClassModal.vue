@@ -43,22 +43,28 @@ import { useEscClose } from '../composables/useEscClose'
 useEscClose(emit)
 
 async function switchTo(cls) {
-  await classStore.switchClass(cls)
-  emit('close')
+  try {
+    await classStore.switchClass(cls)
+    emit('close')
+  } catch (err) { alert(err.error || '切换失败') }
 }
 
 async function createClass() {
   if (!newName.value.trim()) return
-  await api.post('/classes', { name: newName.value.trim() })
-  newName.value = ''
-  await classStore.fetchClasses()
+  try {
+    await api.post('/classes', { name: newName.value.trim() })
+    newName.value = ''
+    await classStore.fetchClasses()
+  } catch (err) { alert(err.error || '创建失败') }
 }
 
 async function editClass(cls) {
   const name = prompt('修改班级名称', cls.name)
   if (!name || name === cls.name) return
-  await api.put(`/classes/${cls.id}`, { name })
-  await classStore.fetchClasses()
+  try {
+    await api.put(`/classes/${cls.id}`, { name })
+    await classStore.fetchClasses()
+  } catch (err) { alert(err.error || '修改失败') }
 }
 
 async function deleteClass(cls) {
