@@ -41,7 +41,7 @@
       </div>
       <div v-else class="relative w-full flex justify-center mt-0 mb-1 animate-float-idle">
         <img :src="petImageUrl" :alt="student.pet_name || '宠物'"
-          class="w-24 h-24 sm:w-32 sm:h-32 object-contain relative z-10 animate-breathe transition-transform duration-500 scale-[2.0] sm:scale-[2.2] hover:scale-[2.3] sm:hover:scale-[2.5]" :class="{ 'animate-bounce': justScored }" />
+          class="w-24 h-24 sm:w-32 sm:h-32 object-contain relative z-10 animate-breathe transition-transform duration-500 scale-[1.2] sm:scale-[1.3] hover:scale-[1.35] sm:hover:scale-[1.45]" :class="{ 'animate-bounce': justScored }" />
       </div>
     </div>
 
