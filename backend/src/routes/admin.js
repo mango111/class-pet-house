@@ -45,7 +45,18 @@ router.post('/licenses/generate', adminAuth, async (req, res) => {
 router.get('/licenses', adminAuth, async (req, res) => {
   try {
     const licenses = await License.findAll({ order: [['created_at', 'DESC']] });
-    res.json(licenses);
+
+    const userIds = licenses.filter(l => l.used_by).map(l => l.used_by);
+    const users = await User.findAll({ where: { id: userIds }, attributes: ['id', 'username'] });
+    const userMap = users.reduce((map, u) => { map[u.id] = u.username; return map; }, {});
+
+    const result = licenses.map(l => {
+      const data = l.toJSON();
+      data.username = data.used_by ? (userMap[data.used_by] || '未知账户') : null;
+      return data;
+    });
+
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: '获取失败' });
   }
