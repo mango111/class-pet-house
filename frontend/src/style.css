@@ -18,6 +18,19 @@
   /* sky-200 */
 }
 
+/* 全局高亮选中样式 (修复选中后文字看不见的问题) */
+::selection {
+  background-color: var(--theme-ring) !important;
+  color: #0c4a6e !important;
+  /* sky-900 保证足够的对比度 */
+}
+
+input::selection,
+textarea::selection {
+  background-color: var(--theme-ring) !important;
+  color: #0c4a6e !important;
+}
+
 /* 全局样式 */
 body {
   margin: 0;
