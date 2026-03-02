@@ -236,15 +236,17 @@ function toggleStudent(id) {
   }
 }
 
+const validStudents = computed(() => classStore.students.filter(s => s.pet_type))
+
 const isAllSelected = computed(() => {
-  return classStore.students.length > 0 && selectedIds.value.length === classStore.students.length
+  return validStudents.value.length > 0 && selectedIds.value.length === validStudents.value.length
 })
 
 function toggleSelectAll() {
   if (isAllSelected.value) {
     selectedIds.value = []
   } else {
-    selectedIds.value = classStore.students.map(s => s.id)
+    selectedIds.value = validStudents.value.map(s => s.id)
   }
 }
 
