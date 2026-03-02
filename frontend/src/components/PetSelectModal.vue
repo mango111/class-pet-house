@@ -6,11 +6,11 @@
 
       <!-- 起名输入框 -->
       <div v-if="selectedPet" class="mb-4 text-center">
-        <img :src="`/pet-images/${selectedPet.folder}/1.webp`" class="w-40 h-40 sm:w-52 sm:h-52 mx-auto object-contain mb-4 drop-shadow-xl" />
-        <p class="text-lg font-bold text-gray-700 mb-2">已选：{{ selectedPet.name }}</p>
+        <img :src="`/pet-images/${selectedPet.folder}/1.webp`" class="w-56 h-56 sm:w-72 sm:h-72 mx-auto object-contain mb-6 drop-shadow-2xl scale-125 transition-transform" />
+        <p class="text-xl font-black text-gray-800 mb-3">已选：{{ selectedPet.name }}</p>
         <input v-model="petName" type="text" :placeholder="`给${selectedPet.name}起个名字（可选）`"
           maxlength="20" @keyup.enter="confirmSelect"
-          class="w-full max-w-sm mx-auto px-4 py-3 rounded-xl border-2 text-lg outline-none focus:border-accent text-center font-bold" />
+          class="w-full max-w-md mx-auto px-5 py-4 rounded-2xl border-4 border-slate-200 text-2xl outline-none focus:border-accent text-center font-black" />
         <div class="flex gap-2 justify-center mt-3">
           <button @click="selectedPet = null"
             class="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm">重选</button>
@@ -20,14 +20,14 @@
       </div>
 
       <!-- 宠物列表 -->
-      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 px-2">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-6 px-2">
         <button v-for="pet in pets" :key="pet.id"
           @click="selectedPet = pet"
-          class="flex flex-col items-center p-3 rounded-2xl border-2 border-slate-100/80 bg-slate-50/30 hover:border-accent hover:bg-theme-light transition-all active:scale-95 group shadow-sm hover:shadow-md">
-          <div class="w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
-            <img :src="`/pet-images/${pet.folder}/1.webp`" :alt="pet.name" class="w-full h-full object-contain drop-shadow-sm group-hover:drop-shadow-lg group-hover:scale-110 transition-transform duration-300" />
+          class="flex flex-col items-center p-4 rounded-3xl border-4 border-slate-100/80 bg-slate-50/50 hover:border-accent hover:bg-theme-light transition-all active:scale-95 group shadow-sm hover:shadow-lg">
+          <div class="w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center">
+            <img :src="`/pet-images/${pet.folder}/1.webp`" :alt="pet.name" class="w-full h-full object-contain drop-shadow-md group-hover:drop-shadow-2xl group-hover:scale-125 transition-transform duration-300" />
           </div>
-          <span class="text-sm font-bold text-slate-600 mt-2">{{ pet.name }}</span>
+          <span class="text-lg font-black text-slate-700 mt-4">{{ pet.name }}</span>
         </button>
       </div>
     </div>
