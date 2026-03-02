@@ -224,12 +224,19 @@ adminApi.interceptors.response.use(
 )
 
 const setAdminHeaders = (user, pass) => {
-  const token = btoa(`${user}:${pass}`)
+  const normalizedUser = (user || '').trim()
+  const normalizedPass = (pass || '').trim()
+  const token = btoa(`${normalizedUser}:${normalizedPass}`)
   adminApi.defaults.headers.common['Authorization'] = `Basic ${token}`
-  localStorage.setItem('adminAuth', JSON.stringify({ user, pass }))
+  adminApi.defaults.headers.common['X-Admin-Username'] = normalizedUser
+  adminApi.defaults.headers.common['X-Admin-Password'] = normalizedPass
+  localStorage.setItem('adminAuth', JSON.stringify({ user: normalizedUser, pass: normalizedPass }))
 }
 
 const handleLogin = async () => {
+  adminUser.value = (adminUser.value || '').trim()
+  adminPass.value = (adminPass.value || '').trim()
+
   if (!adminUser.value || !adminPass.value) {
     loginError.value = '请输入账密'
     return
@@ -292,13 +299,35 @@ const handleGenerate = async () => {
 
 const copyCode = async (code) => {
   try {
-    await navigator.clipboard.writeText(code)
-    const originalFilter = filterType.value
+    // 优先尝试现代 API (仅在 HTTPS 或 localhost 可用)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(code)
+    } else {
+      // 降级传统复制方法 (支持 HTTP 域名)
+      const textArea = document.createElement("textarea")
+      textArea.value = code
+      // 隐藏输入框，防止页面滚动
+      textArea.style.position = "absolute"
+      textArea.style.left = "-999999px"
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      try {
+        document.execCommand('copy')
+      } catch (err) {
+        console.error('Fallback copy failed', err)
+        throw err
+      } finally {
+        textArea.remove()
+      }
+    }
+    
     // 简单闪烁一下 UI 作为反馈
+    const originalFilter = filterType.value
     filterType.value = ''
     setTimeout(() => { filterType.value = originalFilter }, 50)
   } catch (e) {
-    alert('复制失败，请手动选择复制')
+    alert('复制失败，请手动选择复制: ' + e.message)
   }
 }
 
