@@ -1,8 +1,8 @@
 <template>
   <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
     @click.self="$emit('close')">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6
-      animate-bounce-in text-center">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 sm:p-6
+      animate-bounce-in text-center mx-4">
       <div class="text-6xl mb-4">🎉</div>
       <h2 class="text-2xl font-bold text-yellow-600 mb-2">
         毕业典礼
@@ -16,7 +16,7 @@
 
       <!-- 宠物图片 -->
       <img v-if="petImage" :src="petImage"
-        class="w-32 h-32 mx-auto object-contain animate-float mb-4" />
+        class="w-24 h-24 sm:w-32 sm:h-32 mx-auto object-contain animate-float mb-4" />
 
       <button @click="handleGraduate" :disabled="loading"
         class="px-6 py-2 bg-yellow-400 text-white rounded-xl
@@ -44,7 +44,7 @@ const loading = ref(false)
 const petImage = computed(() => {
   const pet = PETS.find(p => p.id === props.student.pet_type)
   if (!pet) return ''
-  return `/pet-images/${pet.folder}/10.webp`
+  return `/pet-images/${pet.folder}/10.webp?v=3`
 })
 
 async function handleGraduate() {

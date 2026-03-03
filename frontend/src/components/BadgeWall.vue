@@ -42,6 +42,6 @@ function getPetName(petType) {
 function getBadgeImage(badge) {
   const pet = PETS.find(p => p.id === badge.pet_type)
   if (!pet) return ''
-  return `/pet-images/${pet.folder}/10.webp`
+  return `/pet-images/${pet.folder}/10.webp?v=3`
 }
 </script>

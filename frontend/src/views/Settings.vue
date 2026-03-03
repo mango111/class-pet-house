@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto space-y-6">
+  <div class="max-w-4xl mx-auto space-y-6">
     <h2 class="text-xl font-bold text-gray-700">⚙️ 设置</h2>
 
     <!-- 系统名称 & 班级名称 -->
@@ -19,7 +19,7 @@
     <!-- 学生名单管理 -->
     <div class="bg-white rounded-2xl p-5 shadow-sm">
       <h3 class="font-bold text-gray-700 mb-3">👨‍🎓 学生名单管理</h3>
-      <div class="flex gap-2 mb-3">
+      <div class="flex flex-col sm:flex-row gap-2 mb-3">
         <input v-model="newStudentName" type="text" placeholder="输入学生姓名"
           @keyup.enter="addStudent"
           class="flex-1 px-3 py-2 rounded-lg border border-gray-200 outline-none text-sm" />
@@ -58,13 +58,13 @@
           </div>
         </div>
       </div>
-      <div class="flex gap-2 mt-3">
+      <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto_auto] gap-2 mt-3">
         <input v-model="newRule.name" placeholder="规则名称"
           class="flex-1 px-3 py-2 rounded-lg border text-sm outline-none" />
         <input v-model="newRule.icon" placeholder="图标" maxlength="2"
-          class="w-14 px-2 py-2 rounded-lg border text-sm outline-none text-center" />
+          class="w-full sm:w-14 px-2 py-2 rounded-lg border text-sm outline-none text-center" />
         <input v-model.number="newRule.value" type="number" placeholder="分值"
-          class="w-16 px-2 py-2 rounded-lg border text-sm outline-none" />
+          class="w-full sm:w-16 px-2 py-2 rounded-lg border text-sm outline-none" />
         <button @click="addRule"
           class="px-3 py-2 bg-accent text-white rounded-lg text-sm">➕</button>
       </div>
@@ -119,7 +119,7 @@
 
     <!-- 保存按钮 -->
     <button @click="saveSettings"
-      class="fixed bottom-6 right-6 px-6 py-3 bg-accent text-white rounded-xl shadow-lg bg-accent-hover transition active:scale-95">
+      class="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 sm:left-auto sm:right-6 sm:translate-x-0 w-[calc(100%-1.5rem)] sm:w-auto px-6 py-3 bg-accent text-white rounded-xl shadow-lg bg-accent-hover transition active:scale-95 z-50">
       💾 保存设置
     </button>
 
@@ -266,43 +266,43 @@ async function saveSettings() {
 }
 
 async function randomAssignPets() {
-  if (!confirm('将为所有未分配宠物的学生随机分配，确定？')) return
+  if (!(await Dialog.confirm('将为所有未分配宠物的学生随机分配，确定？'))) return
   try {
     await api.post('/students/random-pets', {
       class_id: classStore.currentClass.id,
       pets: PETS
     })
     await classStore.fetchStudents()
-    alert('随机分配完成')
-  } catch (err) { alert(err.error || '分配失败') }
+    Dialog.alert('随机分配完成')
+  } catch (err) { Dialog.alert(err.error || '分配失败') }
 }
 
 async function randomAssignGroups() {
-  if (!confirm('将打乱所有学生并随机分配到现有分组，确定？')) return
+  if (!(await Dialog.confirm('将打乱所有学生并随机分配到现有分组，确定？'))) return
   try {
     await api.post('/groups/random-assign', {
       class_id: classStore.currentClass.id
     })
     await classStore.fetchGroups()
     await classStore.fetchStudents()
-    alert('随机分组完成')
-  } catch (err) { alert(err.error || '分组失败') }
+    Dialog.alert('随机分组完成')
+  } catch (err) { Dialog.alert(err.error || '分组失败') }
 }
 
 async function resetAllProgress() {
-  if (!confirm('⚠️ 将重置全班所有学生的食物和宠物，此操作不可撤回！确定？')) return
+  if (!(await Dialog.confirm('⚠️ 将重置全班所有学生的食物和宠物，此操作不可撤回！确定？'))) return
   try {
     await api.post('/students/reset-all', {
       class_id: classStore.currentClass.id
     })
     await classStore.fetchStudents()
-    alert('全班进度已重置')
-  } catch (err) { alert(err.error || '重置失败') }
+    Dialog.alert('全班进度已重置')
+  } catch (err) { Dialog.alert(err.error || '重置失败') }
 }
 
 async function copyConfig() {
   if (!copyFromClassId.value) return
-  if (!confirm('将从源班级复制积分规则、商品和成长阶段到当前班级，确定？')) return
+  if (!(await Dialog.confirm('将从源班级复制积分规则、商品和成长阶段到当前班级，确定？'))) return
   try {
     await api.post('/classes/copy-config', {
       from_class_id: copyFromClassId.value,
@@ -311,7 +311,7 @@ async function copyConfig() {
     await classStore.fetchClasses()
     const data = await api.get(`/score-rules/class/${classStore.currentClass.id}`)
     rules.value = data
-    alert('配置复制成功')
-  } catch (err) { alert(err.error || '复制失败') }
+    Dialog.alert('配置复制成功')
+  } catch (err) { Dialog.alert(err.error || '复制失败') }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative rounded-[1.8rem] p-2.5 sm:p-4 flex flex-col h-full cursor-pointer transition-all duration-300 group"
+    class="relative rounded-[1.4rem] sm:rounded-[1.8rem] p-2.5 sm:p-3 flex flex-col h-full cursor-pointer transition-all duration-300 group overflow-hidden"
     :class="{
       // 批量选中模式
       'ring-4 ring-accent bg-theme-light scale-[0.98] opacity-90': batchMode && selected,
@@ -8,7 +8,7 @@
       'border border-dashed border-gray-300 bg-white/50 hover:bg-white scale-100 opacity-70 hover:opacity-100 animate-pulse': batchMode && !selected,
       // 正常模式
       'ring-4 ring-accent bg-white shadow-xl shadow-accent/20 scale-105 z-10': !batchMode && selected,
-      'bg-gradient-to-b from-white to-[var(--theme-bg)] shadow-[0_10px_40px_-10px_var(--theme-ring)] opacity-95 blur-[0.2px] saturate-95 hover:opacity-100 hover:blur-none hover:saturate-100 hover:shadow-[0_20px_50px_-10px_var(--theme-ring)] hover:-translate-y-2 transition-all duration-500': !batchMode && !selected
+      'bg-white shadow-[0_4px_20px_-5px_var(--theme-ring)] border-2 border-white hover:border-[var(--theme-ring)]/40 hover:-translate-y-1 transition-all duration-300': !batchMode && !selected
     }"
     @click="$emit(batchMode ? 'select' : 'click')"
   >
@@ -18,79 +18,78 @@
       <span class="text-sm font-bold" v-show="selected">✓</span>
     </div>
 
-    <!-- 顶栏：等级标与更换宠物按钮 -->
-    <div class="flex justify-between items-start mb-0 relative z-10 h-6">
-      <!-- 夸张放大的等级徽标 -->
-      <div v-if="student.pet_type" class="absolute -top-5 -left-4 flex items-baseline space-x-1.5 z-30 drop-shadow-md bg-white/60 backdrop-blur-xl px-3 py-1 rounded-2xl border-2 border-white/80">
-        <div class="w-4 h-4 rounded-full shadow-inner" :class="levelDotColor"></div>
-        <span class="text-slate-800 font-black text-xl tracking-tighter italic">Lv.{{ petStage }}</span>
+    <!-- 顶栏：等级标与操作按钮 -->
+    <div class="flex justify-between items-start mb-2 relative z-30 min-h-7 w-full px-1">
+      <!-- 极简的圆角胶囊等级标 -->
+      <div v-if="student.pet_type" class="flex items-center space-x-1.5 z-30 bg-white px-2 py-1 rounded-full border border-slate-100 shadow-sm shadow-slate-100/50">
+        <div class="w-2.5 h-2.5 rounded-full" :class="levelDotColor"></div>
+        <span class="text-slate-800 font-extrabold text-xs tracking-tight italic">Lv.{{ petStage }}</span>
       </div>
+      <div v-else></div>
       
       <!-- 右上角操作按钮区 -->
-      <div v-if="student.pet_type && !batchMode" class="absolute -top-1.5 right-0 flex gap-1.5 z-20">
-        <button class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-sm text-slate-400 hover:text-sky-500 hover:bg-sky-50 shadow-sm border border-slate-100 transition-all active:scale-95" title="打印收集卡"
+      <div v-if="student.pet_type && !batchMode" class="flex gap-2 z-30">
+        <button class="w-7 h-7 flex items-center justify-center bg-slate-100/80 rounded-full text-xs text-slate-500 hover:text-sky-500 hover:bg-sky-50 transition-all active:scale-95" title="打印收集卡"
           @click.stop="$emit('print-cert')">🖨️</button>
-        <button class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-sm text-slate-400 hover:text-accent hover:bg-red-50 shadow-sm border border-slate-100 transition-all active:scale-95" title="更换宠物"
+        <button class="w-7 h-7 flex items-center justify-center bg-slate-100/80 rounded-full text-xs text-slate-500 hover:text-accent hover:bg-red-50 transition-all active:scale-95" title="更换宠物"
           @click.stop="$emit('change-pet')">🔄</button>
       </div>
     </div>
 
-    <!-- 宠物图片区 (带高级底层光圈) -->
-    <div class="flex flex-1 justify-center items-center py-0 relative mt-0">
-      <!-- 新增：深邃淡雅的青蓝色光晕底座 -->
-      <div v-if="student.pet_type" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-cyan-50/80 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-2xl z-0 pointer-events-none"></div>
-      <div v-if="!student.pet_type" class="w-32 h-32 sm:w-44 sm:h-44 flex items-center justify-center text-5xl sm:text-8xl bg-slate-50 rounded-full border border-slate-100">
+    <!-- 宠物图片区 (带极简圆形光圈) -->
+    <div class="flex justify-center items-center py-1 sm:py-2 relative mb-2 h-[50%] min-h-[11rem] sm:min-h-[13rem] lg:min-h-[14.5rem]">
+      <div v-if="!student.pet_type" class="w-20 h-20 sm:w-28 sm:h-28 lg:w-36 lg:h-36 flex items-center justify-center text-3xl sm:text-5xl bg-slate-50/50 rounded-full border border-slate-100">
         🥚
       </div>
-      <div v-else class="relative w-full flex justify-center mt-0 mb-1 animate-float-idle">
+      <div v-else class="relative w-full h-full flex justify-center items-center mt-1 animate-float-idle z-10">
         <img v-if="petImageUrl" :src="petImageUrl" :alt="student.pet_name || '宠物'"
-          class="w-40 h-40 sm:w-56 sm:h-56 object-contain relative z-10 animate-breathe transition-transform duration-500" 
-          :class="{ 'animate-bounce': justScored, 'scale-[1.6] sm:scale-[1.8] hover:scale-[1.7] sm:hover:scale-[1.9]': petStage === 1, 'scale-[1.3] sm:scale-[1.4] hover:scale-[1.45] sm:hover:scale-[1.55]': petStage > 1 }" />
-        <div v-else class="w-32 h-32 sm:w-44 sm:h-44 flex items-center justify-center text-2xl sm:text-4xl bg-slate-50 rounded-full border border-dashed border-red-200 text-red-300 font-bold text-center p-2">
-          宠物已下架
+          class="w-auto h-auto max-w-full max-h-full object-contain relative transition-transform duration-500 drop-shadow-sm"
+          :class="{ 'animate-bounce': justScored }" />
+        <div v-else class="w-20 h-20 sm:w-28 sm:h-28 lg:w-36 lg:h-36 flex items-center justify-center text-xs sm:text-sm lg:text-base bg-slate-50 rounded-full border border-dashed border-red-200 text-red-300 font-bold text-center p-2">
+          已下架
         </div>
       </div>
     </div>
 
     <!-- 学生姓名区 -->
-    <div class="flex justify-between items-end mt-0 mb-1 px-1 relative z-10">
-      <h3 class="text-xl sm:text-2xl font-black text-[#0f172a] truncate tracking-wide leading-tight max-w-[60%] drop-shadow-sm">{{ student.name }}</h3>
-      <span v-if="student.pet_type" class="text-xs font-bold text-slate-400 truncate max-w-[35%]">{{ student.pet_name || '未命名' }}</span>
+    <div class="flex items-center gap-2 mb-1 pl-1 relative z-10">
+      <h3 class="text-sm sm:text-lg xl:text-xl font-bold text-slate-800 truncate leading-tight">{{ student.name }}</h3>
+      <span v-if="student.pet_type" class="text-[10px] sm:text-xs font-medium text-slate-400 truncate">{{ student.pet_name || '未命名' }}</span>
     </div>
 
-    <!-- 进度条系统 (加粗厚实果冻感, 深水蓝色) -->
-    <div v-if="student.pet_type" class="flex flex-col gap-1 relative z-10 px-1 mb-1.5">
-      <div class="flex justify-between items-center text-xs font-bold">
-        <span class="text-slate-400 tracking-wide">本级进度</span>
-        <span v-if="!isMaxLevel" class="text-blue-500 font-black flex items-center gap-1">
-          <span class="text-slate-500 font-bold">还差</span> <OdometerNumber :value="maxFood - student.food_count" /> <span class="text-[13px]">🍖</span>
+    <!-- 进度条系统 (深蓝/浅晶蓝风格) -->
+    <div v-if="student.pet_type" class="flex flex-col gap-1.5 relative z-10 px-1 mb-3">
+      <div class="flex justify-between items-center text-[11px] sm:text-xs font-medium">
+        <span class="text-slate-400">本级进度</span>
+        <span v-if="!isMaxLevel" class="text-blue-600 font-bold flex items-center gap-1">
+          <span class="text-slate-400">还差</span> <span class="text-[13px]"><OdometerNumber :value="maxFood - student.food_count" /></span> <span class="text-[10px]">🍖</span>
         </span>
-        <span v-else class="text-yellow-500 font-extrablod">✨ 已满级</span>
+        <span v-else class="text-yellow-500 font-bold">✨ 已满级</span>
       </div>
 
-      <div class="h-2.5 sm:h-3.5 bg-slate-100 rounded-full overflow-hidden shadow-inner border border-slate-200/50">
-        <div class="h-full bg-[#06b6d4] rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-1 shadow-sm"
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div class="h-full bg-cyan-400 rounded-full transition-all duration-1000 ease-out"
           :style="{ width: `${progressPercent}%` }">
         </div>
       </div>
     </div>
 
     <!-- 底部数据状态标 (纯净无背景一字排开) -->
-    <div class="flex justify-between items-center text-xs font-bold text-slate-500 border-t border-slate-100/50 pt-1.5 relative z-10 px-1 mt-auto">
-      <div class="flex items-center space-x-1 hover:text-orange-500 transition-colors">
-        <span class="text-sm">🍖</span><span><OdometerNumber :value="student.food_count" /></span>
+    <div class="flex justify-between items-center text-[10px] sm:text-[11px] font-bold text-slate-500 border-t border-slate-50 pt-2 relative z-10 px-1 mt-auto gap-1">
+      <div class="flex items-center space-x-1 text-slate-600">
+        <span class="text-[11px] sm:text-xs">🍖</span><span><OdometerNumber :value="student.food_count" /></span>
       </div>
-      <div class="flex items-center space-x-1 text-slate-400/80">
-        <span class="text-sm opacity-50">👥</span><span class="text-[11px] font-medium">{{ groupName }}</span>
+      <div class="flex items-center space-x-1 text-slate-300">
+        <span class="text-[11px] sm:text-xs opacity-60">👥</span><span class="font-medium truncate max-w-[72px] sm:max-w-[90px]">{{ groupName }}</span>
       </div>
-      <div class="flex items-center space-x-1 hover:text-yellow-500 transition-colors" @click.stop="$emit('show-badges')">
-        <span class="text-sm grayscale opacity-30">🏅</span><span class="text-slate-400"><OdometerNumber :value="student.badges ? student.badges.length : 0" /></span>
+      <div class="flex items-center space-x-1 text-slate-300" @click.stop="$emit('show-badges')">
+        <span class="text-[11px] sm:text-xs grayscale opacity-40">🏅</span><span><OdometerNumber :value="student.badges ? student.badges.length : 0" /></span>
       </div>
     </div>
 
     <!-- 满级毕业按钮 -->
     <button v-if="isMaxLevel"
-      class="absolute bottom-3 left-3 right-3 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-[1.5rem] text-sm font-bold shadow-md hover:from-yellow-500 hover:to-amber-600 active:scale-95 transition-all z-20"
+      class="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 py-1.5 sm:py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-[1.5rem] text-xs sm:text-sm font-bold shadow-md hover:from-yellow-500 hover:to-amber-600 active:scale-95 transition-all z-20"
       @click.stop="$emit('graduate')">
       ✨ 召唤守护兽
     </button>
@@ -177,8 +176,9 @@ const levelDotColor = computed(() => {
 const petImageUrl = computed(() => {
   const pet = PETS.find(p => p.id === props.student.pet_type)
   if (!pet) return ''
-  return `/pet-images/${pet.folder}/${petStage.value}.webp`
+  return `/pet-images/${pet.folder}/${petStage.value}.webp?v=3`
 })
+
 </script>
 
 <style scoped>

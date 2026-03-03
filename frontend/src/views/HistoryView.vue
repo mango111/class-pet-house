@@ -1,20 +1,20 @@
 <template>
-  <div class="max-w-2xl mx-auto">
-    <h2 class="text-xl font-bold text-gray-700 mb-4">☁️ 成长记录</h2>
+  <div class="max-w-2xl mx-auto px-2 sm:px-0">
+    <h2 class="text-lg sm:text-xl font-bold text-gray-700 mb-4">☁️ 成长记录</h2>
 
     <div class="space-y-2">
       <div v-for="h in history" :key="h.id"
-        class="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm"
+        class="flex items-center gap-2 sm:gap-3 bg-white rounded-xl p-2.5 sm:p-3 shadow-sm"
         :class="{ 'opacity-50 line-through': h.is_revoked }">
-        <span class="text-lg">{{ h.type === 'graduate' ? '🎓' : h.type === 'exchange' ? '🛍️' : h.value > 0 ? '➕' : '➖' }}</span>
-        <div class="flex-1">
-          <p class="text-sm text-gray-700">
+        <span class="text-base sm:text-lg">{{ h.type === 'graduate' ? '🎓' : h.type === 'exchange' ? '🛍️' : h.value > 0 ? '➕' : '➖' }}</span>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs sm:text-sm text-gray-700 truncate">
             <span class="font-medium">{{ h.Student?.name || '未知' }}</span>
             {{ h.rule_name || h.type }}
           </p>
-          <p class="text-xs text-gray-400">{{ formatTime(h.createdAt) }}</p>
+          <p class="text-[10px] sm:text-xs text-gray-400">{{ formatTime(h.createdAt) }}</p>
         </div>
-        <span class="text-sm font-bold" :class="h.value > 0 ? 'text-green-500' : 'text-red-500'">
+        <span class="text-xs sm:text-sm font-bold shrink-0" :class="h.value > 0 ? 'text-green-500' : 'text-red-500'">
           {{ h.value > 0 ? '+' : '' }}{{ h.value }}
         </span>
       </div>

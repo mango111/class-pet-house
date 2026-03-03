@@ -4,8 +4,8 @@ const crypto = require('crypto');
 
 // 管理员验证（使用 Authorization header）
 const adminAuth = (req, res, next) => {
-  const adminUser = process.env.ADMIN_USERNAME;
-  const adminPass = process.env.ADMIN_PASSWORD;
+  const adminUser = (process.env.ADMIN_USERNAME || '').trim();
+  const adminPass = (process.env.ADMIN_PASSWORD || '').trim();
   if (!adminUser || !adminPass) {
     return res.status(503).json({ error: '管理后台未配置' });
   }
@@ -14,13 +14,16 @@ const adminAuth = (req, res, next) => {
   const authHeader = req.headers.authorization || '';
   if (authHeader.startsWith('Basic ')) {
     const decoded = Buffer.from(authHeader.slice(6), 'base64').toString();
-    const [u, p] = decoded.split(':');
+    const sepIndex = decoded.indexOf(':');
+    const u = (sepIndex >= 0 ? decoded.slice(0, sepIndex) : decoded).trim();
+    const p = (sepIndex >= 0 ? decoded.slice(sepIndex + 1) : '').trim();
     if (u === adminUser && p === adminPass) return next();
   }
 
   // 兼容自定义 header
-  const { username, password } = req.headers;
-  if (username === adminUser && password === adminPass) return next();
+  const headerUser = (req.headers['x-admin-username'] || req.headers.username || '').toString().trim();
+  const headerPass = (req.headers['x-admin-password'] || req.headers.password || '').toString().trim();
+  if (headerUser === adminUser && headerPass === adminPass) return next();
 
   res.status(401).json({ error: '管理员认证失败' });
 };
@@ -91,8 +94,8 @@ router.get('/stats', adminAuth, async (req, res) => {
 // 仅仅为了排查线上环境变量加载问题，临时提供的不鉴权接口
 router.get('/debug-env', (req, res) => {
   res.json({
-    user: process.env.ADMIN_USERNAME || 'undefined',
-    pass: process.env.ADMIN_PASSWORD || 'undefined',
+    user: (process.env.ADMIN_USERNAME || 'undefined').trim(),
+    pass: (process.env.ADMIN_PASSWORD || 'undefined').trim(),
     cwd: process.cwd(),
     dirname: __dirname,
     node_env: process.env.NODE_ENV

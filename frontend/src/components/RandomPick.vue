@@ -82,7 +82,7 @@ const available = computed(() => {
 const petImage = computed(() => {
   if (!result.value?.pet_type) return ''
   const pet = PETS.find(p => p.id === result.value.pet_type)
-  return pet ? `/pet-images/${pet.folder}/1.webp` : ''
+  return pet ? `/pet-images/${pet.folder}/1.webp?v=3` : ''
 })
 
 function startRoll() {

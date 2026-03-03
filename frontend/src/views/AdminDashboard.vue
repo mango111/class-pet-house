@@ -165,6 +165,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import Dialog from '../utils/dialog'
 
 const adminUser = ref('')
 const adminPass = ref('')
@@ -291,7 +292,7 @@ const handleGenerate = async () => {
     filterType.value = 'unused' // 自动切到未使用的卡密查看
     currentPage.value = 1 // 生成后回到第一页看新生成的数据
   } catch (err) {
-    alert(err.error || '生成卡密失败')
+    Dialog.alert(err.error || '生成卡密失败')
   } finally {
     loading.value = false
   }
@@ -327,7 +328,7 @@ const copyCode = async (code) => {
     filterType.value = ''
     setTimeout(() => { filterType.value = originalFilter }, 50)
   } catch (e) {
-    alert('复制失败，请手动选择复制: ' + e.message)
+    Dialog.alert('复制失败，请手动选择复制: ' + e.message)
   }
 }
 

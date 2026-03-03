@@ -1,23 +1,7 @@
 <template>
   <div>
-    <!-- 排序切换 -->
-    <div class="flex items-center justify-between mb-4 px-1">
-      <span class="text-sm font-bold text-slate-400">共 <span class="text-slate-600"><OdometerNumber :value="filteredStudents.length" /></span> 名学生</span>
-      <div class="relative">
-        <select v-model="sortMode" class="appearance-none bg-white/80 border border-slate-200/80 shadow-sm rounded-full pl-4 pr-8 py-1.5 text-sm font-bold text-slate-600 outline-none focus:border-accent transition-colors cursor-pointer hover:bg-white">
-          <option value="manual">手动排序</option>
-          <option value="name">姓名排序</option>
-          <option value="food">排行榜排序</option>
-          <option value="progress">进度排序</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-[10px] text-slate-400">
-          ▼
-        </div>
-      </div>
-    </div>
-
     <!-- 学生卡片网格 -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-10 px-3 sm:px-0 py-2">
+    <div class="grid grid-cols-1 min-[430px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-5 lg:gap-6 px-1 sm:px-0 py-2">
       <StudentCard
         v-for="(s, index) in filteredStudents" :key="s.id"
         class="animate-stagger-fade-in"
@@ -32,6 +16,7 @@
         @change-pet="handleChangePet(s)"
         @graduate="handleGraduate(s)"
         @show-badges="handleShowBadges(s)"
+        @print-cert="handlePrintCert(s)"
       />
     </div>
 
@@ -71,6 +56,14 @@
       :student="selectedStudent"
       @close="showBadgeWall = false"
     />
+
+    <!-- 证书打印弹窗 -->
+    <CertificateModal
+      v-if="showCertificateModal"
+      :show="showCertificateModal"
+      :student="selectedStudent"
+      @close="showCertificateModal = false"
+    />
   </div>
 </template>
 
@@ -83,6 +76,7 @@ import PetSelectModal from '../components/PetSelectModal.vue'
 import GraduateModal from '../components/GraduateModal.vue'
 import BadgeWall from '../components/BadgeWall.vue'
 import OdometerNumber from '../components/OdometerNumber.vue'
+import CertificateModal from '../components/CertificateModal.vue' // Added import
 import api from '../utils/api'
 import Dialog from '../utils/dialog'
 
@@ -91,16 +85,20 @@ const props = defineProps({
   batchMode: Boolean,
   undoMode: Boolean,
   activeGroup: [Number, String],
-  selectedStudents: Set
+  selectedStudents: Set,
+  sortMode: {
+    type: String,
+    default: 'manual'
+  }
 })
 
 const emit = defineEmits(['select-student'])
 const classStore = useClassStore()
-const sortMode = ref('manual')
 const showScoreModal = ref(false)
 const showPetModal = ref(false)
 const showGraduateModal = ref(false)
 const showBadgeWall = ref(false)
+const showCertificateModal = ref(false) // Added ref
 const selectedStudent = ref(null)
 const defaultStages = [0, 5, 10, 20, 30, 45, 60, 75, 90, 100]
 
@@ -121,11 +119,11 @@ const filteredStudents = computed(() => {
   }
 
   // 排序
-  if (sortMode.value === 'name') {
+  if (props.sortMode === 'name') {
     list.sort((a, b) => a.name.localeCompare(b.name, 'zh'))
-  } else if (sortMode.value === 'food') {
+  } else if (props.sortMode === 'food') {
     list.sort((a, b) => b.food_count - a.food_count)
-  } else if (sortMode.value === 'progress') {
+  } else if (props.sortMode === 'progress') {
     const stages = classStore.currentClass?.growth_stages || defaultStages
     const max = stages[stages.length - 1]
     list.sort((a, b) => (b.food_count / max) - (a.food_count / max))
@@ -192,5 +190,10 @@ async function onGraduated() {
 function handleShowBadges(student) {
   selectedStudent.value = student
   showBadgeWall.value = true
+}
+
+function handlePrintCert(student) {
+  selectedStudent.value = student
+  showCertificateModal.value = true
 }
 </script>

@@ -1,122 +1,52 @@
 <template>
-  <div class="min-h-screen text-gray-800 pb-20 md:pb-20 overflow-x-hidden">
-    <!-- 顶部绝美悬浮导航栏 (Floating glass dock) -->
-    <div class="fixed top-3 sm:top-5 left-0 right-0 z-50 px-3 sm:px-6 pointer-events-none">
-      <nav class="max-w-6xl mx-auto h-[4.5rem] bg-white/80 backdrop-blur-2xl border-2 border-white rounded-[2.5rem] shadow-[0_15px_35px_-10px_var(--theme-ring)] flex items-center justify-between px-4 sm:px-6 pointer-events-auto transition-all duration-500">
-        
-        <!-- 左侧：班级名称 -->
-        <div class="flex items-center">
-          <button @click="showClassModal = true" class="group flex items-center gap-1.5 sm:gap-2 text-slate-800 font-bold transition">
-            <span class="text-2xl sm:text-3xl drop-shadow-sm">🐾</span> 
-            <span class="font-kuaile text-lg sm:text-xl tracking-wide hidden sm:inline-block">{{ classStore.currentClass?.system_name || '班级宠物屋' }}</span>
-            <span class="text-[11px] sm:text-xs font-bold bg-white/80 px-3 py-1.5 rounded-full border border-white text-slate-700 shadow-sm ml-1 sm:ml-2 hover:bg-white transition-colors">{{ classStore.currentClass?.name || '选择班级' }} ▼</span>
+  <div class="min-h-screen text-gray-800 pb-[calc(5rem+env(safe-area-inset-bottom))] overflow-x-hidden" :style="{ backgroundColor: 'var(--theme-bg, #fef5b5)' }">
+    <!-- 顶部主控面板 -->
+    <div ref="topPanelRef" class="fixed top-0 left-0 right-0 z-50 pt-2 pb-2 px-3 sm:px-4 md:px-6 lg:px-8 pointer-events-none flex justify-center">
+      <div class="w-full max-w-5xl bg-white/95 backdrop-blur-3xl rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] p-3 sm:p-4 flex flex-col gap-2 pointer-events-auto border border-white relative overflow-hidden">
+        <!-- 装饰性元素 -->
+        <div class="absolute -left-10 -top-10 w-24 h-24 bg-cyan-400 rounded-full blur-[40px] opacity-20 pointer-events-none"></div>
+
+        <!-- 第一行: 左侧班级 & 右侧操作 -->
+        <div class="flex items-center justify-between gap-2 z-10 min-w-0">
+          <button @click="showClassModal = true" class="group max-w-full flex items-center gap-2 text-slate-700 font-bold bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full transition-colors border border-slate-100">
+            <span class="text-lg drop-shadow-sm">🐾</span> 
+            <span class="text-sm font-bold tracking-wide truncate max-w-[9rem] sm:max-w-[18rem] md:max-w-[24rem]">{{ classStore.currentClass?.name || '默认班级' }}</span>
+            <span class="text-[10px] text-slate-400">▼</span>
           </button>
-        </div>
 
-        <!-- 中间：搜索框 -->
-        <div class="flex items-center hidden lg:block">
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-            <input v-model="searchQuery" type="text" placeholder="搜索学生..."
-              class="pl-9 pr-4 py-2 bg-white/50 rounded-2xl border-2 border-white text-sm focus:border-accent focus:bg-white outline-none w-48 shadow-sm transition-all focus:shadow-[0_4px_15px_-3px_var(--theme-light)] focus:-translate-y-0.5 font-nunito font-bold text-gray-600 placeholder-gray-400" />
+          <!-- 功能按钮 -->
+          <div v-if="route.path === '/'" class="flex shrink-0 items-center justify-end gap-1.5">
+            <button @click="batchMode = !batchMode"
+              class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-colors border"
+              :class="batchMode ? 'bg-accent text-white border-accent shadow-md shadow-accent/20' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 shadow-sm'">
+              <span class="text-sm sm:text-base text-[#0bc7cf]" :class="batchMode ? '!text-white' : ''">👥</span>
+              <span class="hidden min-[400px]:inline">批量</span>
+            </button>
+            <div class="relative shrink-0">
+              <select v-model="sortMode" class="appearance-none bg-sky-50 text-sky-600 border border-sky-100 rounded-full pl-2.5 sm:pl-3 pr-6 py-1.5 text-xs sm:text-sm font-bold outline-none cursor-pointer hover:bg-sky-100 transition-colors shadow-sm h-full flex items-center w-[6.6rem] sm:w-auto">
+                <option value="manual">⇅ 排序</option>
+                <option value="name">姓名字典</option>
+                <option value="food">积分食物</option>
+                <option value="progress">等级进度</option>
+              </select>
+              <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[8px] text-sky-400">▼</span>
+            </div>
           </div>
         </div>
 
-        <!-- 右侧：功能按钮 -->
-        <div class="flex items-center gap-2 sm:gap-3">
-          <!-- 批量操作与撤回 -->
-          <div v-if="route.path === '/'" class="flex items-center bg-white rounded-full p-1 shadow-sm border border-slate-100">
-            <div class="relative group hidden sm:block">
-              <button v-if="!batchMode" @click="batchMode = true"
-                class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-transparent text-slate-500 hover:bg-slate-50 hover:text-accent transition-colors">
-                <span class="text-lg sm:text-xl">👥</span>
-              </button>
-              <div v-if="!batchMode" class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">批量操作</div>
-            </div>
-            <button v-if="!batchMode" @click="batchMode = true"
-              class="sm:hidden flex items-center justify-center w-9 h-9 rounded-full text-slate-500">
-              <span class="text-lg">👥</span>
-            </button>
-            
-            <button v-if="batchMode" @click="exitBatch"
-              class="flex items-center justify-center w-9 h-9 sm:w-auto sm:px-4 sm:py-2 gap-1.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-              <span class="text-lg sm:text-xl">❌</span><span class="text-sm font-bold hidden sm:inline">退出</span>
-            </button>
-
-            <div class="w-px h-5 bg-slate-200 mx-1"></div>
-
-            <div class="relative group hidden sm:block">
-              <button @click="undoMode = !undoMode"
-                :class="undoMode ? 'bg-red-50 text-red-500' : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-accent'"
-                class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full transition-colors">
-                <span class="text-lg sm:text-xl">↩️</span>
-              </button>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">撤销修改</div>
-            </div>
-            <button @click="undoMode = !undoMode"
-              :class="undoMode ? 'bg-red-50 text-red-500' : 'text-slate-500'"
-              class="sm:hidden flex items-center justify-center w-9 h-9 rounded-full">
-              <span class="text-lg">↩️</span>
-            </button>
-          </div>
-
-          <!-- 已移除移动端汉堡菜单 -->
-
-          <!-- 桌面端核心操作大图标区 -->
-          <div class="hidden md:flex items-center gap-3 bg-white/50 rounded-2xl p-1 border-2 border-white shadow-sm">
-            <div class="relative group">
-              <router-link to="/" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-theme-text">
-                <span class="text-xl">🏠</span>
-              </router-link>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">返回首页</div>
-            </div>
-            <div class="relative group">
-              <button @click="showRandomPick=true" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-theme-text">
-                <span class="text-xl">🎲</span>
-              </button>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">趣味点名</div>
-            </div>
-            <div class="relative group">
-              <button @click="showTimer=true" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-theme-text">
-                <span class="text-xl">⏱️</span>
-              </button>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">课堂计时</div>
-            </div>
-            <div class="relative group">
-              <router-link to="/history" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-theme-text">
-                <span class="text-xl">☁️</span>
-              </router-link>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">成长足迹</div>
-            </div>
-            <div class="relative group">
-              <router-link to="/leaderboard" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-theme-text">
-                <span class="text-xl">🏆</span>
-              </router-link>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">荣耀榜单</div>
-            </div>
-            <div class="relative group">
-              <router-link to="/shop" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-theme-text">
-                <span class="text-xl">🛍️</span>
-              </router-link>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">神奇小卖部</div>
-            </div>
-            <div class="relative group">
-              <router-link to="/settings" class="btn-toy flex items-center justify-center w-10 h-10 bg-white rounded-xl text-gray-600">
-                <span class="text-xl">⚙️</span>
-              </router-link>
-              <div class="absolute top-14 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white font-bold text-xs rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition duration-200 z-50">控制台</div>
-            </div>
-          </div>
+        <!-- 第二行: 搜索框 -->
+        <div v-if="route.path === '/'" class="relative w-full z-10">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <input v-model="searchQuery" type="text" placeholder="搜索学生..."
+            class="w-full pl-10 pr-4 py-2 bg-slate-100/80 rounded-full border-none text-sm focus:ring-2 focus:ring-accent focus:bg-white outline-none transition-all font-bold text-slate-600 placeholder-slate-400" />
         </div>
-      </nav>
+      </div>
     </div>
-
-    <!-- 为了给原先吸顶导航腾出空间 -->
-    <div class="h-28"></div>
+    <div :style="{ height: `${topPanelHeight}px` }"></div>
 
     <!-- 分组筛选栏 (极简高级圆角) -->
-    <div v-if="classStore.groups.length" class="max-w-6xl mx-auto px-4 mb-4 relative z-40">
-      <div class="bg-white/60 backdrop-blur-md border border-white/80 rounded-full px-1.5 py-1.5 flex gap-1.5 overflow-x-auto shadow-sm max-w-max">
+    <div v-if="classStore.groups.length" class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 mb-4 relative z-40">
+      <div class="bg-white/60 backdrop-blur-md border border-white/80 rounded-full px-1.5 py-1.5 flex gap-1.5 overflow-x-auto shadow-sm w-full sm:w-auto">
         <button @click="activeGroup = null"
           :class="activeGroup === null ? 'bg-accent/10 text-accent font-extrabold' : 'text-slate-500 hover:bg-white/60'"
           class="px-4 py-1.5 rounded-full text-[13px] font-bold whitespace-nowrap transition-all">全部同学</button>
@@ -130,19 +60,20 @@
     </div>
 
     <!-- 主内容区 -->
-    <main class="max-w-6xl mx-auto p-4 flex-1">
+    <main class="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-4 flex-1">
       <router-view
         :search-query="searchQuery"
         :batch-mode="batchMode"
         :undo-mode="undoMode"
         :active-group="activeGroup"
+        :sort-mode="sortMode"
         :selected-students="selectedStudents"
         @select-student="toggleStudent"
       />
     </main>
 
     <!-- 批量操作底栏 (浮动卡片式) 注意移动端高度需要更高以避开TabBar -->
-    <div v-if="batchMode" class="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] border-2 border-white rounded-2xl px-6 py-4 flex flex-col md:flex-row items-center gap-4 md:gap-6 z-50 w-[90%] md:w-auto max-w-sm md:max-w-none">
+    <div v-if="batchMode" class="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] md:bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] border-2 border-white rounded-2xl px-4 sm:px-6 py-4 flex flex-col md:flex-row items-center gap-4 md:gap-6 z-50 w-[calc(100%-1rem)] sm:w-[90%] md:w-auto max-w-sm md:max-w-none">
       <span class="font-bold text-gray-600">已选 <span class="text-accent text-xl mx-1">{{ selectedIds.length }}</span> 人</span>
       <div class="flex gap-3">
         <button @click="toggleSelectAll" class="btn-toy px-5 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-bold text-gray-600">
@@ -173,35 +104,36 @@
     <!-- 课堂计时器 -->
     <ClassTimer v-if="showTimer" @close="showTimer = false" />
 
-    <!-- 移动端专属 TabBar (Mobile Bottom Navbar) -->
-    <div class="fixed bottom-0 left-0 right-0 z-40 md:hidden pointer-events-none pb-4 px-4 overflow-hidden">
-      <nav class="bg-white/90 backdrop-blur-2xl border-2 border-white rounded-[2rem] shadow-[0_15px_35px_-10px_var(--theme-ring)] flex items-center justify-around px-2 py-2 pointer-events-auto">
-        <router-link to="/" class="flex flex-col items-center justify-center w-14 h-12 rounded-2xl transition-all relative group" active-class="text-accent font-black -translate-y-1 bg-theme-light shadow-inner" exact-active-class="text-accent font-black -translate-y-1 bg-theme-light shadow-inner">
-          <span class="text-xl mb-0.5 transition-transform" :class="route.path === '/' ? 'scale-110 drop-shadow-sm animate-breathe' : 'grayscale opacity-50 group-hover:scale-110'">🐾</span>
-          <span class="text-[10px] leading-none" :class="route.path === '/' ? '' : 'font-bold'">首页</span>
-        </router-link>
+  </div>
 
-        <router-link to="/leaderboard" class="flex flex-col items-center justify-center w-14 h-12 rounded-2xl transition-all relative group" active-class="text-accent font-black -translate-y-1 bg-theme-light shadow-inner">
-          <span class="text-xl mb-0.5 transition-transform" :class="route.path.startsWith('/leaderboard') ? 'scale-110 drop-shadow-sm animate-breathe' : 'grayscale opacity-50 group-hover:scale-110'">🏆</span>
-          <span class="text-[10px] leading-none" :class="route.path.startsWith('/leaderboard') ? '' : 'font-bold'">光荣榜</span>
-        </router-link>
+  <!-- 底部 TabBar (独立于滚动容器，始终固定在视口底部) -->
+  <div class="fixed bottom-0 left-0 right-0 z-[999] bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)] border-t border-slate-100 pb-[env(safe-area-inset-bottom)]">
+    <nav class="max-w-5xl mx-auto flex items-center justify-around px-2 py-2 bg-white relative">
+      <router-link to="/" class="flex flex-col items-center justify-center transition-all relative group w-16 h-12" exact-active-class="text-[#0bc7cf] font-black">
+        <span class="text-xl sm:text-2xl mb-1 transition-transform" :class="route.path === '/' ? '' : 'opacity-70 group-hover:scale-110'">🏠</span>
+        <span class="text-[10px] sm:text-[11px] leading-none text-slate-400 font-bold" :class="route.path === '/' ? 'text-[#0bc7cf]' : ''">首页</span>
+      </router-link>
 
-        <router-link to="/history" class="flex flex-col items-center justify-center w-14 h-12 rounded-2xl transition-all relative group" active-class="text-accent font-black -translate-y-1 bg-theme-light shadow-inner">
-          <span class="text-xl mb-0.5 transition-transform" :class="route.path.startsWith('/history') ? 'scale-110 drop-shadow-sm animate-breathe' : 'grayscale opacity-50 group-hover:scale-110'">☁️</span>
-          <span class="text-[10px] leading-none" :class="route.path.startsWith('/history') ? '' : 'font-bold'">成长记录</span>
-        </router-link>
+      <router-link to="/shop" class="flex flex-col items-center justify-center transition-all relative group w-16 h-12" active-class="text-[#0bc7cf] font-black">
+        <span class="text-xl sm:text-2xl mb-1 transition-transform" :class="route.path.startsWith('/shop') ? '' : 'opacity-70 group-hover:scale-110'">🛍️</span>
+        <span class="text-[10px] sm:text-[11px] leading-none text-slate-400 font-bold" :class="route.path.startsWith('/shop') ? 'text-[#0bc7cf]' : ''">小卖部</span>
+      </router-link>
 
-        <router-link to="/shop" class="flex flex-col items-center justify-center w-14 h-12 rounded-2xl transition-all relative group" active-class="text-accent font-black -translate-y-1 bg-theme-light shadow-inner">
-          <span class="text-xl mb-0.5 transition-transform" :class="route.path.startsWith('/shop') ? 'scale-110 drop-shadow-sm animate-breathe' : 'grayscale opacity-50 group-hover:scale-110'">🛍️</span>
-          <span class="text-[10px] leading-none" :class="route.path.startsWith('/shop') ? '' : 'font-bold'">小卖部</span>
-        </router-link>
-      </nav>
-    </div>
+      <router-link to="/leaderboard" class="flex flex-col items-center justify-center transition-all relative group w-16 h-12" active-class="text-[#0bc7cf] font-black">
+        <span class="text-xl sm:text-2xl mb-1 transition-transform" :class="route.path.startsWith('/leaderboard') ? '' : 'opacity-70 group-hover:scale-110'">🏆</span>
+        <span class="text-[10px] sm:text-[11px] leading-none text-slate-400 font-bold" :class="route.path.startsWith('/leaderboard') ? 'text-[#0bc7cf]' : ''">光荣榜</span>
+      </router-link>
+
+      <router-link to="/settings" class="flex flex-col items-center justify-center transition-all relative group w-16 h-12" active-class="text-[#0bc7cf] font-black">
+        <span class="text-xl sm:text-2xl mb-1 transition-transform" :class="route.path.startsWith('/settings') ? '' : 'opacity-70 group-hover:scale-110'">⚙️</span>
+        <span class="text-[10px] sm:text-[11px] leading-none text-slate-400 font-bold" :class="route.path.startsWith('/settings') ? 'text-[#0bc7cf]' : ''">设置</span>
+      </router-link>
+    </nav>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useClassStore } from '../stores/class'
 import { useTheme } from '../composables/useTheme'
@@ -217,12 +149,22 @@ const searchQuery = ref('')
 const batchMode = ref(false)
 const undoMode = ref(false)
 const activeGroup = ref(null)
+const sortMode = ref('manual')
 const selectedIds = ref([])
 const showClassModal = ref(false)
 const showBatchScoreModal = ref(false)
 const showMenu = ref(false)
 const showRandomPick = ref(false)
 const showTimer = ref(false)
+const topPanelRef = ref(null)
+const topPanelHeight = ref(136)
+let topPanelObserver = null
+
+function updateTopPanelHeight() {
+  const el = topPanelRef.value
+  if (!el) return
+  topPanelHeight.value = Math.ceil(el.getBoundingClientRect().height)
+}
 
 // 兼容旧的 Set 接口给子组件用
 const selectedStudents = computed(() => new Set(selectedIds.value))
@@ -262,6 +204,14 @@ async function onBatchScored() {
 }
 
 onMounted(async () => {
+  await nextTick()
+  updateTopPanelHeight()
+  window.addEventListener('resize', updateTopPanelHeight)
+  if (typeof ResizeObserver !== 'undefined' && topPanelRef.value) {
+    topPanelObserver = new ResizeObserver(updateTopPanelHeight)
+    topPanelObserver.observe(topPanelRef.value)
+  }
+
   try {
     await classStore.fetchClasses()
     if (classStore.currentClass) {
@@ -272,5 +222,11 @@ onMounted(async () => {
       ])
     }
   } catch {}
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateTopPanelHeight)
+  topPanelObserver?.disconnect()
+  topPanelObserver = null
 })
 </script>

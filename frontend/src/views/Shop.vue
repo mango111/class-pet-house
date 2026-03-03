@@ -1,9 +1,9 @@
 <template>
-  <div class="max-w-2xl mx-auto">
+  <div class="max-w-6xl mx-auto">
     <h2 class="text-xl font-bold text-gray-700 mb-4">🛍️ 小卖部</h2>
 
     <!-- 商品列表 -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+    <div class="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
       <div v-for="(item, i) in items" :key="item.id"
         class="group bg-white/90 backdrop-blur-md rounded-[1.8rem] p-5 shadow-sm text-center border-2 border-white hover:border-[var(--theme-ring)]/40 hover:shadow-[0_15px_35px_-10px_var(--theme-ring)] hover:-translate-y-1 transition-all duration-300 animate-stagger-fade-in flex flex-col items-center"
         :style="{ animationDelay: `${i * 0.05}s` }">
