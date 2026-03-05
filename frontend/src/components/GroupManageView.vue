@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import draggable from 'vuedraggable'
 import { useClassStore } from '../stores/class.js'
 import { PETS, getPetImageUrl } from '../utils/pets.js'
