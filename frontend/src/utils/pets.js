@@ -62,3 +62,8 @@ export const PETS = [
   { id: 'red-panda', name: '小熊猫', folder: '小熊猫十阶段图片' },
   { id: 'baby-shark', name: '小鲨鱼', folder: '小鲨鱼十阶段图片' }
 ]
+
+export const getPetImageUrl = (folder, stage) => {
+  const baseUrl = import.meta.env.VITE_IMAGE_BASE_URL || '/pet-images'
+  return `${baseUrl}/${folder}/${stage}.webp?v=3`
+}

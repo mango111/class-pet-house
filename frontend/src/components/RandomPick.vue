@@ -10,7 +10,7 @@
           {{ currentName }}
         </div>
         <div v-else-if="result" class="animate-bounce-in">
-          <img v-if="result.pet_type" :src="petImage"
+          <img v-if="result.pet_type" :src="petImageUrl"
             class="w-20 h-20 mx-auto object-contain mb-2" />
           <p class="text-3xl font-bold text-theme">{{ result.name }}</p>
           <p v-if="result.pet_name" class="text-sm text-gray-400 mt-1">
@@ -60,7 +60,7 @@
 import { ref, computed } from 'vue'
 import { useClassStore } from '../stores/class'
 import { useEscClose } from '../composables/useEscClose'
-import { PETS } from '../utils/pets'
+import { PETS, getPetImageUrl } from '../utils/pets'
 
 const emit = defineEmits(['close'])
 useEscClose(emit)
@@ -79,10 +79,10 @@ const available = computed(() => {
   return classStore.students.filter(s => !pickedIds.has(s.id))
 })
 
-const petImage = computed(() => {
-  if (!result.value?.pet_type) return ''
+const petImageUrl = computed(() => {
+  if (!result.value || !result.value.pet_type) return ''
   const pet = PETS.find(p => p.id === result.value.pet_type)
-  return pet ? `/pet-images/${pet.folder}/1.webp?v=3` : ''
+  return pet ? getPetImageUrl(pet.folder, 1) : ''
 })
 
 function startRoll() {

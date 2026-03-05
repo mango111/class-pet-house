@@ -19,7 +19,9 @@
       <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-5">
         <!-- 起名输入框 -->
         <div v-if="selectedPet" class="text-center py-4 h-full flex flex-col items-center justify-center">
-          <img :src="`/pet-images/${selectedPet.folder}/1.webp?v=3`" class="w-40 h-40 sm:w-56 sm:h-56 mx-auto object-contain mb-4 drop-shadow-2xl" />
+          <div class="relative w-full aspect-square bg-sky-50 rounded-2xl flex items-center justify-center p-4 mb-4">
+            <img :src="getPetImageUrl(selectedPet.folder, 1)" class="w-40 h-40 sm:w-56 sm:h-56 mx-auto object-contain drop-shadow-2xl" />
+          </div>
           <p class="text-lg sm:text-xl font-black text-gray-800 mb-3">已选：{{ selectedPet.name }}</p>
           <div class="flex items-center justify-center gap-2 w-full max-w-sm mx-auto mb-4">
             <input v-model="petName" type="text" :placeholder="`给${selectedPet.name}起个名`"
@@ -45,8 +47,8 @@
           <button v-for="pet in filteredPets" :key="pet.id"
             @click="selectedPet = pet"
             class="flex flex-col items-center p-2 sm:p-3 rounded-xl border-2 border-slate-100 bg-white hover:border-purple-300 hover:bg-purple-50/50 transition-all active:scale-95 group">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-              <img :src="`/pet-images/${pet.folder}/1.webp?v=3`" :alt="pet.name" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
+            <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto my-2 p-1 sm:p-2 bg-gradient-to-br from-white to-sky-50 rounded-xl relative overflow-hidden flex items-center justify-center">
+              <img :src="getPetImageUrl(pet.folder, 1)" :alt="pet.name" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
             </div>
             <span class="text-xs sm:text-sm font-bold text-slate-600 mt-1">{{ pet.name }}</span>
           </button>
@@ -66,9 +68,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useEscClose } from '../composables/useEscClose'
-import { PETS } from '../utils/pets'
+import { PETS, getPetImageUrl } from '../utils/pets'
 import api from '../utils/api'
 import Dialog from '../utils/dialog'
 

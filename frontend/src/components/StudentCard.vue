@@ -105,7 +105,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { PETS } from '../utils/pets'
+import { PETS, getPetImageUrl } from '../utils/pets'
 import OdometerNumber from './OdometerNumber.vue'
 import { useClassStore } from '../stores/class'
 
@@ -176,7 +176,7 @@ const levelDotColor = computed(() => {
 const petImageUrl = computed(() => {
   const pet = PETS.find(p => p.id === props.student.pet_type)
   if (!pet) return ''
-  return `/pet-images/${pet.folder}/${petStage.value}.webp?v=3`
+  return getPetImageUrl(pet.folder, petStage.value)
 })
 
 const petScale = computed(() => {

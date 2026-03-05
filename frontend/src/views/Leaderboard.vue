@@ -52,9 +52,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useClassStore } from '../stores/class'
-import { PETS } from '../utils/pets'
+import { computed, watch, ref } from 'vue'
+import { useClassStore } from '../stores/class.js'
+import { PETS, getPetImageUrl } from '../utils/pets.js'
 
 const classStore = useClassStore()
 const rankBy = ref('food')
@@ -70,13 +70,14 @@ const rankedStudents = computed(() => {
 })
 
 function getPetImage(s) {
+  if (!s || !s.pet_type) return ''
   const pet = PETS.find(p => p.id === s.pet_type)
   if (!pet) return ''
-  const stages = classStore.currentClass?.growth_stages || [0,5,10,20,30,45,60,75,90,100]
+  const stages = classStore.currentClass?.growthConfig?.stages || [0,5,10,20,30,45,60,75,90,100]
   let stage = 1
   for (let i = stages.length - 1; i >= 0; i--) {
     if (s.food_count >= stages[i]) { stage = i + 1; break }
   }
-  return `/pet-images/${pet.folder}/${stage}.webp?v=3`
+  return getPetImageUrl(pet.folder, stage)
 }
 </script>

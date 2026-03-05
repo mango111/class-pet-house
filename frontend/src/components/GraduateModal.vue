@@ -31,7 +31,7 @@
 import { ref, computed } from 'vue'
 import { useClassStore } from '../stores/class'
 import { useEscClose } from '../composables/useEscClose'
-import { PETS } from '../utils/pets'
+import { PETS, getPetImageUrl } from '../utils/pets'
 import api from '../utils/api'
 import Dialog from '../utils/dialog'
 
@@ -41,10 +41,10 @@ useEscClose(emit)
 const classStore = useClassStore()
 const loading = ref(false)
 
-const petImage = computed(() => {
+const petImageUrl = computed(() => {
+  if (!props.student || !props.student.pet_type) return ''
   const pet = PETS.find(p => p.id === props.student.pet_type)
-  if (!pet) return ''
-  return `/pet-images/${pet.folder}/10.webp?v=3`
+  return pet ? getPetImageUrl(pet.folder, 10) : ''
 })
 
 async function handleGraduate() {

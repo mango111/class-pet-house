@@ -112,11 +112,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import draggable from 'vuedraggable'
-import { useClassStore } from '../stores/class'
-import { PETS } from '../utils/pets'
-import api from '../utils/api'
+import { useClassStore } from '../stores/class.js'
+import { PETS, getPetImageUrl } from '../utils/pets.js'
+import api from '../utils/api.js'
 import Dialog from '../utils/dialog'
 
 const emit = defineEmits(['close'])
@@ -147,15 +147,16 @@ onMounted(() => {
   rebuildLists()
 })
 
-function getPetImage(student) {
+const getPetImage = (student) => {
+  if (!student || !student.pet_type) return ''
   const pet = PETS.find(p => p.id === student.pet_type)
   if (!pet) return ''
-  const stages = classStore.currentClass?.growth_stages || [0, 5, 10, 20, 30, 45, 60, 75, 90, 100]
+  const stages = classStore.currentClass?.growthConfig?.stages || [0,5,10,20,30,45,60,75,90,100]
   let stage = 1
   for (let i = stages.length - 1; i >= 0; i--) {
     if (student.food_count >= stages[i]) { stage = i + 1; break }
   }
-  return `/pet-images/${pet.folder}/${stage}.webp?v=3`
+  return getPetImageUrl(pet.folder, stage)
 }
 
 async function onDragChange(evt, groupId) {

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "upload:cos": "node upload-cos.js"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +23,8 @@
     "mysql2": "^3.18.2",
     "sequelize": "^6.37.7",
     "xss": "^1.0.15"
+  },
+  "devDependencies": {
+    "cos-nodejs-sdk-v5": "^2.15.4"
   }
 }
