@@ -71,9 +71,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { toPng } from 'html-to-image'
-import { PETS } from '../utils/pets'
+import { PETS, getPetImageUrl } from '../utils/pets'
 import Dialog from '../utils/dialog'
 
 const props = defineProps({
@@ -135,11 +135,10 @@ const petImageUrl = computed(() => {
   if (!props.student || !props.student.pet_type) return ''
   const pet = PETS.find(p => p.id === props.student.pet_type)
   if (!pet) return ''
-  return `/pet-images/${pet.folder}/${petStage.value}.webp?v=3`
+  return getPetImageUrl(pet.folder, petStage.value)
 })
 </script>
 
 <style scoped>
 /* 无需打印样式 */
 </style>
-
