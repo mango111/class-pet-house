@@ -1,23 +1,23 @@
 <template>
   <div class="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 md:p-4"
     @click.self="$emit('close')">
-    <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full max-w-lg max-h-[92vh] sm:max-h-[85vh] flex flex-col overflow-hidden animate-bounce-in">
+    <div class="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full max-w-lg max-h-[75vh] sm:max-h-[80vh] flex flex-col overflow-hidden animate-bounce-in">
       
       <!-- 渐变头部 -->
-      <div class="shrink-0 bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 px-5 py-4 sm:px-6 sm:py-5 relative">
+      <div class="shrink-0 bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 px-4 py-3 sm:px-6 sm:py-5 relative">
         <h3 class="text-lg sm:text-xl font-black text-white">批量导入学生名单</h3>
-        <p class="text-white/80 text-xs sm:text-sm mt-0.5">一行一个姓名，系统将自动过滤空行和重复项</p>
-        <button @click="$emit('close')" class="absolute top-4 right-4 sm:top-5 sm:right-5 w-8 h-8 flex items-center justify-center text-white/80 hover:text-white text-xl font-bold transition-colors">✕</button>
+        <p class="text-white/80 text-xs sm:text-sm mt-0.5 pr-8">一行一个姓名，系统自动过滤空行重复</p>
+        <button @click="$emit('close')" class="absolute top-3 right-3 sm:top-5 sm:right-5 w-8 h-8 flex items-center justify-center text-white/80 hover:text-white text-xl font-bold transition-colors">✕</button>
       </div>
 
       <!-- 可滚动内容区 -->
-      <div class="flex-1 overflow-y-auto min-h-0 p-4 sm:p-6 bg-slate-50">
-        <textarea v-model="text" rows="10" placeholder="例如：
+      <div class="flex-1 overflow-y-auto min-h-0 p-3 sm:p-6 bg-slate-50">
+        <textarea v-model="text" rows="6" placeholder="例如：
 张三
 李四
 王五"
-          class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 outline-none
-          focus:border-accent text-base bg-white shadow-sm resize-none tracking-wide text-slate-700"></textarea>
+          class="w-full h-full min-h-[120px] px-3 py-3 rounded-2xl border-2 border-slate-200 outline-none
+          focus:border-accent text-sm sm:text-base bg-white shadow-sm resize-none tracking-wide text-slate-700"></textarea>
       </div>
 
       <!-- 底部按钮区 -->
