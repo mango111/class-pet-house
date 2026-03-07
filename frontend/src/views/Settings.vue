@@ -140,6 +140,13 @@
       @added="showBatchAdd = false"
     />
 
+    <!-- 修改密码弹窗 -->
+    <ChangePasswordModal
+      v-if="showChangePassword"
+      :show="showChangePassword"
+      @close="showChangePassword = false"
+    />
+
     <!-- AI 周报弹窗 -->
     <AiReportModal
       v-if="showAiReport"
@@ -158,6 +165,7 @@ import { useAuthStore } from '../stores/auth'
 import api from '../utils/api'
 import BatchAddModal from '../components/BatchAddModal.vue'
 import AiReportModal from '../components/AiReportModal.vue'
+import ChangePasswordModal from '../components/ChangePasswordModal.vue'
 import { useTheme } from '../composables/useTheme'
 import { PETS } from '../utils/pets'
 import Dialog from '../utils/dialog'
@@ -177,6 +185,7 @@ const newRule = ref({ name: '', icon: '⭐', value: 1 })
 const growthStagesText = ref('')
 const copyFromClassId = ref('')
 const showAiReport = ref(false)
+const showChangePassword = ref(false)
 
 const themes = [
   { id: 'pink', color: '#f472b6' },
@@ -251,15 +260,8 @@ async function addRule() {
   } catch (err) { Dialog.alert(err.error || '添加失败') }
 }
 
-async function changePassword() {
-  const oldPwd = await Dialog.prompt('请输入旧密码')
-  if (!oldPwd) return
-  const newPwd = await Dialog.prompt('请输入新密码（至少6位）')
-  if (!newPwd) return
-  try {
-    await api.put('/auth/change-password', { oldPassword: oldPwd, newPassword: newPwd })
-    Dialog.alert('密码修改成功')
-  } catch (err) { Dialog.alert(err.error || '修改失败') }
+function changePassword() {
+  showChangePassword.value = true
 }
 
 function handleLogout() {
