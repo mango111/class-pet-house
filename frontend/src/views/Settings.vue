@@ -74,7 +74,7 @@
             @keyup.enter="addStudent"
             class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-accent bg-gray-50 focus:bg-white transition" />
           <button @click="addStudent"
-            class="px-6 py-2.5 bg-accent text-white font-medium rounded-xl hover:bg-accent-hover transition">单独添加</button>
+            class="px-4 sm:px-6 py-2.5 bg-accent text-white font-medium rounded-xl hover:bg-accent-hover transition whitespace-nowrap shrink-0">添加</button>
         </div>
 
         <div class="flex-1 space-y-2 pr-2">
