@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen text-gray-800 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-4 overflow-clip" :style="{ backgroundColor: 'var(--theme-bg, #fef5b5)' }">
+  <div class="min-h-screen text-gray-800 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-4" :style="{ backgroundColor: 'var(--theme-bg, #fef5b5)' }">
     <!-- 顶部主控面板 -->
     <div ref="topPanelRef" class="fixed top-0 left-0 right-0 z-50 pt-2 pb-2 px-3 sm:px-4 md:px-6 lg:px-8 pointer-events-none flex justify-center">
       <div class="w-full max-w-[1600px] 2xl:max-w-[1800px] bg-white/95 backdrop-blur-3xl rounded-[1.5rem] sm:rounded-[2rem] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] p-3 sm:p-4 flex flex-col md:flex-row md:items-center gap-2 md:gap-4 pointer-events-auto border border-white relative overflow-hidden">
