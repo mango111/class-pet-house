@@ -33,7 +33,6 @@ textarea::selection {
 
 /* 全局样式 */
 html {
-  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -46,8 +45,6 @@ body {
   background: linear-gradient(135deg, var(--theme-light) 0%, var(--theme-shadow-hard) 100%);
   color: var(--theme-text);
   font-family: 'Nunito', 'Rounded Mplus 1c', sans-serif;
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
 /* Global SVG Noise Overlay to create tactile paper/glass texture */
